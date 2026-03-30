@@ -1,0 +1,26 @@
+# Planning Poker Free — contexto rápido
+
+## Produto
+- Uma única sala em tempo real (máx. 8 pessoas). Deck: XS, S, M, L, XL, ?, COFFEE (café não entra nas estatísticas de acordo/soma).
+- Fases: `awaiting_host` → `lobby` → `draft` → `voting` → `revealing` (3s) → `revealed`. Sem persistência além da sessão PartyKit.
+
+## Stack
+- **Next.js 15** (`src/app`): UI, tema claro/escuro (`next-themes`), rota `/api/jira` opcional.
+- **PartyKit** (`party/index.ts`, `party/engine-state.ts`, `party/reduce-message.ts`, `party/snapshot.ts`): WebSocket/autoridade da sala; estado em memória (hibernate desligado).
+- **Cliente WS**: `partysocket` + `src/hooks/use-planning-socket.ts`. Host: query `/sala?host=1&room=&name=` após `/anfitriao`.
+
+## Variáveis
+- `NEXT_PUBLIC_PARTYKIT_HOST` — em prod, host do deploy PartyKit (sem protocolo, ex.: `projeto.usuario.partykit.dev`).
+- `NEXT_PUBLIC_PARTYKIT_PARTY` — default `main` (alinhar com `partykit.json`).
+- `NEXT_PUBLIC_PARTYKIT_ROOM` — default `global-room` (ver `shared/types.ts` `ROOM_PARTY_ID`).
+- Jira: `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN` para `/api/jira`.
+
+## Lógica compartilhada
+- `@shared/types`, `@shared/vote-stats` (distribuição, acordo, unanimidade para confete), `@shared/wire` (mensagens Zod).
+
+## Scripts
+- `npm run dev` — PartyKit (1999) + Next em paralelo.
+- `npm test` — Vitest em `shared/**/*.test.ts`.
+
+## Deploy
+- Vercel: app Next + projeto PartyKit deployado; configurar envs públicos apontando ao host PartyKit.
