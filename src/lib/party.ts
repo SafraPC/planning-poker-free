@@ -1,10 +1,17 @@
 import type { RoomSnapshot } from "@shared/types";
 
-export function getPartyKitHost() {
-  return (
-    process.env.NEXT_PUBLIC_PARTYKIT_HOST ??
-    `${typeof window !== "undefined" ? window.location.hostname : "127.0.0.1"}:1999`
-  );
+const DEV_PARTYKIT_HOST = "127.0.0.1:1999";
+
+export const PARTYKIT_CONFIG_HELP =
+  "Defina NEXT_PUBLIC_PARTYKIT_HOST com o host do deploy PartyKit (sem https://, ex. o subdomínio exibido após npx partykit deploy). Requer novo deploy do front na Vercel.";
+
+export function getPartyKitHost(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_PARTYKIT_HOST?.trim();
+  if (fromEnv) return fromEnv;
+  if (process.env.NODE_ENV === "development") {
+    return DEV_PARTYKIT_HOST;
+  }
+  return "";
 }
 
 export function getPartyName() {

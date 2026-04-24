@@ -13,7 +13,7 @@
 - **Cliente WS**: `partysocket` + `src/hooks/use-planning-socket.ts` — `id` = `getOrCreatePersistentUserId()`; `room` = token. WS vai ao **PartyKit**, não passa por serverless Vercel. Reconexão: opções em `src/lib/party-socket-options.ts`, PING, `online` + `visibilitychange`, UI `reconnecting`.
 
 ## Variáveis
-- `NEXT_PUBLIC_PARTYKIT_HOST` — em prod, host do deploy PartyKit (sem protocolo).
+- `NEXT_PUBLIC_PARTYKIT_HOST` — em prod **obrigatório** (host do `partykit deploy`, sem `https://`). **Não** usar o domínio Vercel nem `:1999` (1999 = só `npm run dev` local; sem env em produção, o cliente não conecta).
 - `NEXT_PUBLIC_PARTYKIT_PARTY` — default `main` (alinhar com `partykit.json`).
 - Não usar `NEXT_PUBLIC_PARTYKIT_ROOM` fixo; o room id vem do token do convite.
 

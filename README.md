@@ -50,8 +50,9 @@ Cobertura focada nos pontos de risco: estatísticas e exclusão do café (`share
 
 ## Deploy
 
-1. **PartyKit**: `npx partykit deploy` no repositório; anote o host público (ex.: `*.partykit.dev`).
-2. **Vercel**: importe o projeto Next; defina `NEXT_PUBLIC_PARTYKIT_HOST` e `NEXT_PUBLIC_PARTYKIT_PARTY` (padrão `main`). Cada convite usa o **token** no path da room do PartyKit (não é necessário `NEXT_PUBLIC_PARTYKIT_ROOM` fixo).
+1. **PartyKit** (obrigatório): no repositório, `npx partykit deploy` e copie o **host** (ex.: `algo.usuario.partykit.dev` — **sem** `https://`). O WebSocket do app precisa falar com esse host; a Vercel não serve essa conexão sozinha.
+2. **Vercel** → Settings → Environment Variables: `NEXT_PUBLIC_PARTYKIT_HOST` = host do passo 1, `NEXT_PUBLIC_PARTYKIT_PARTY` = `main` (ou o party do `partykit.json` se mudou). Fazer **novo deploy** do Next depois de salvar; variáveis `NEXT_PUBLIC_*` entram no bundle na build.
+3. Se a sala fica em “Conectando” sem fim, quase sempre falta o passo 1–2 **ou** o host com `:1999` (isso é só no dev local, não use na Vercel).
 
 Veja `.env.example` para a lista completa.
 

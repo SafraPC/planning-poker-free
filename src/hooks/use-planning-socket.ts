@@ -9,6 +9,7 @@ import {
   getPartyName,
   getRoomIdForToken,
   isStatePayload,
+  PARTYKIT_CONFIG_HELP,
 } from "@/lib/party";
 import {
   PING_INTERVAL_MS,
@@ -59,6 +60,11 @@ export function usePlanningSocket(
     const id = getOrCreatePersistentUserId();
     if (!id) return;
     roomCloseHandledRef.current = false;
+
+    if (!getPartyKitHost()) {
+      setLastError(PARTYKIT_CONFIG_HELP);
+      return;
+    }
 
     const tryNotifyRoomClosed = () => {
       if (roomCloseHandledRef.current) return;

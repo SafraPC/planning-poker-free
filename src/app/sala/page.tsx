@@ -221,6 +221,15 @@ function SalaContent() {
   }
 
   if (!socketEnabled || !snapshot) {
+    if (lastError) {
+      return (
+        <WaitCard
+          title="Não conectou ao PartyKit"
+          subtitle={lastError}
+          tone="error"
+        />
+      );
+    }
     return (
       <WaitCard
         title="Conectando"
