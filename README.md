@@ -20,7 +20,7 @@ Cada aparelho guarda no **localStorage** um `pp_user_id` (timestamp + sufixo ale
 
 - **Next.js 15** na Vercel: UI, tema, rotas estáticas.
 - **PartyKit**: servidor em tempo real **sem banco** — estado só em memória da party, alinhado ao requisito de "sem persistência durável".
-- **Front** mantém o estado recebido após cada `STATE`; nova rodada zera votos no servidor e reabre o rascunho.
+- **Front** mantém o estado após cada `STATE`; nova rodada zera votos e volta à fase de preparo (`draft`) antes de nova votação.
 
 Por que PartyKit e não só Vercel? Funções serverless da Vercel não mantêm WebSocket long-lived; PartyKit roda na edge com o modelo certo para salas colaborativas.
 
@@ -65,8 +65,7 @@ Veja `.env.example` para a lista completa.
 | `src/app/sala/page.tsx` | Conexão + bootstrap host/convidado |
 | `src/components/room-view.tsx` | Orquestrador: cabeçalho, mesa, fase atual, resultados |
 | `src/components/room/*.tsx` | Painéis por fase (lobby, draft, voting, revealed, header, banners) |
-| `src/hooks/use-task-draft.ts` | Estado local do rascunho da tarefa com sincronia debounced |
-| `src/lib/constants.ts` | Constantes de tempo (debounce, feedback de cópia) |
+| `src/lib/constants.ts` | Constantes (feedback de cópia, etc.) |
 | `src/lib/user-id.ts` / `room-sessions.ts` / `room-token.ts` / `invite-url.ts` | Id de cliente, sessões 10 min, geração de token, URL de convite |
 
 ## Licença

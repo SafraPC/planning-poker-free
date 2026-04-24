@@ -76,13 +76,13 @@ export default function AnfitriaoPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <FieldLabel htmlFor="host-name">Como você aparece</FieldLabel>
+            <FieldLabel htmlFor="host-name">Como quer ser chamado</FieldLabel>
             <Input
               id="host-name"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Seu nome ou apelido"
+              placeholder="Ex.: Maria, @time"
             />
           </div>
           <Button

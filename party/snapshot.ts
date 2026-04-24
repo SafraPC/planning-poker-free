@@ -1,5 +1,5 @@
 import type * as Party from "partykit/server";
-import type { RoomMember, TaskPayload, VoteValue } from "../shared/types";
+import type { RoomMember, VoteValue } from "../shared/types";
 import type { EngineState } from "./engine-state";
 
 export function buildMembersPublic(
@@ -46,7 +46,6 @@ export function buildSnapshot(
   roomName: string;
   roomOpen: boolean;
   members: RoomMember[];
-  task: TaskPayload | null;
   revealEndsAt: number | null;
   selfId: string;
   isHost: boolean;
@@ -56,7 +55,6 @@ export function buildSnapshot(
     roomName: state.roomName,
     roomOpen: state.roomOpen,
     members: buildMembersPublic(state, connection.id),
-    task: state.task,
     revealEndsAt: state.revealEndsAt,
     selfId: connection.id,
     isHost: state.hostId === connection.id,

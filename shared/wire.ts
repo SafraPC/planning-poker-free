@@ -14,13 +14,6 @@ export const ClientMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("HOST_ENTER_DRAFT"),
   }),
   z.object({
-    type: z.literal("SET_TASK"),
-    task: z.object({
-      title: z.string().min(0).max(200),
-      description: z.string().max(4000).optional(),
-    }),
-  }),
-  z.object({
     type: z.literal("HOST_START_VOTING"),
   }),
   z.object({

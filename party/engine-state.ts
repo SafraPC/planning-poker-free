@@ -1,4 +1,4 @@
-import type { Phase, TaskPayload, VoteValue } from "../shared/types";
+import type { Phase, VoteValue } from "../shared/types";
 
 export interface MemberInternal {
   name: string;
@@ -13,7 +13,6 @@ export interface EngineState {
   roomOpen: boolean;
   hostId: string | null;
   members: Record<string, MemberInternal>;
-  task: TaskPayload | null;
   revealEndsAt: number | null;
   orderSeed: number;
 }
@@ -25,7 +24,6 @@ export function createInitialEngine(): EngineState {
     roomOpen: false,
     hostId: null,
     members: {},
-    task: null,
     revealEndsAt: null,
     orderSeed: 0,
   };
@@ -55,7 +53,6 @@ export function applyDisconnect(
       state.phase = "awaiting_host";
       state.roomName = "";
       state.roomOpen = false;
-      state.task = null;
       state.revealEndsAt = null;
       Object.keys(state.members).forEach((k) => delete state.members[k]);
     }

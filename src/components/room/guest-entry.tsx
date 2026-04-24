@@ -46,13 +46,13 @@ export function GuestEntry({ onJoin }: Props) {
         </div>
         <form onSubmit={submit} className="surface-card space-y-5 p-6 shadow-card">
           <div className="space-y-1.5">
-            <FieldLabel htmlFor="guest-name">Seu nome</FieldLabel>
+            <FieldLabel htmlFor="guest-name">Como quer ser chamado</FieldLabel>
             <Input
               id="guest-name"
               autoFocus
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Como quer aparecer na mesa"
+              placeholder="Ex.: Bia, João, @nick"
             />
           </div>
           <Button

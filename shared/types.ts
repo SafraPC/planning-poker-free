@@ -10,11 +10,6 @@ export type VoteValue = "XS" | "S" | "M" | "L" | "XL" | "UNKNOWN" | "COFFEE";
 
 export type MemberRole = "host" | "guest";
 
-export interface TaskPayload {
-  title: string;
-  description?: string;
-}
-
 export interface RoomMember {
   id: string;
   name: string;
@@ -28,7 +23,6 @@ export interface RoomSnapshot {
   roomName: string;
   roomOpen: boolean;
   members: RoomMember[];
-  task: TaskPayload | null;
   revealEndsAt: number | null;
   selfId: string;
   isHost: boolean;

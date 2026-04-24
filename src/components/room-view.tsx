@@ -8,7 +8,6 @@ import type { ClientMessage } from "@shared/wire";
 import { DramaOverlay } from "@/components/drama-overlay";
 import { PokerTable } from "@/components/poker-table";
 import { ResultsPanel } from "@/components/results-panel";
-import { TaskHeadline } from "@/components/room/task-headline";
 import { UnanimityConfetti } from "@/components/unanimity-confetti";
 import { DraftPanel } from "@/components/room/draft-panel";
 import { ErrorBanner } from "@/components/room/error-banner";
@@ -17,7 +16,6 @@ import { RevealedPanel } from "@/components/room/revealed-panel";
 import { RoomHeader } from "@/components/room/room-header";
 import { VotingPanel } from "@/components/room/voting-panel";
 import { WaitCard } from "@/components/room/wait-card";
-import { useTaskDraft } from "@/hooks/use-task-draft";
 
 interface Props {
   snapshot: RoomSnapshot;
@@ -32,8 +30,6 @@ interface Props {
 interface PhaseStageProps {
   snapshot: RoomSnapshot;
   send: (msg: ClientMessage) => void;
-  taskDraft: ReturnType<typeof useTaskDraft>[0];
-  setTaskDraft: ReturnType<typeof useTaskDraft>[1];
   votedCount: number;
   votingTotal: number;
   inviteUrl: string;
@@ -42,8 +38,6 @@ interface PhaseStageProps {
 function PhaseStage({
   snapshot,
   send,
-  taskDraft,
-  setTaskDraft,
   votedCount,
   votingTotal,
   inviteUrl,
@@ -65,8 +59,6 @@ function PhaseStage({
     return (
       <DraftPanel
         isHost={isHost}
-        task={taskDraft}
-        onTaskChange={setTaskDraft}
         onStartVoting={() => send({ type: "HOST_START_VOTING" })}
       />
     );
@@ -110,13 +102,6 @@ export function RoomView({
   intentHost,
   inviteUrl,
 }: Props) {
-  const [taskDraft, setTaskDraft] = useTaskDraft({
-    remoteTask: snapshot.task,
-    isHost: snapshot.isHost,
-    phase: snapshot.phase,
-    send,
-  });
-
   const votes = useMemo(
     () =>
       snapshot.members
@@ -141,7 +126,7 @@ export function RoomView({
     return (
       <WaitCard
         title="Abrindo sua mesa"
-        subtitle="Reservando seu lugar de anfitrião na sala única."
+        subtitle="Reservando seu lugar de anfitrião."
       />
     );
   }
@@ -163,20 +148,11 @@ export function RoomView({
     );
   }
 
-  const showTask =
-    (snapshot.phase === "voting" ||
-      snapshot.phase === "revealing" ||
-      snapshot.phase === "revealed") &&
-    Boolean(snapshot.task?.title);
-
   const tableCenter = (
     <div className="relative flex w-full flex-col items-center gap-4 text-center">
       <DramaOverlay
         endsAt={snapshot.phase === "revealing" ? snapshot.revealEndsAt : null}
       />
-      {showTask && snapshot.task ? (
-        <TaskHeadline task={snapshot.task} />
-      ) : null}
       <AnimatePresence mode="wait">
         <motion.div
           key={snapshot.phase}
@@ -189,8 +165,6 @@ export function RoomView({
           <PhaseStage
             snapshot={snapshot}
             send={send}
-            taskDraft={taskDraft}
-            setTaskDraft={setTaskDraft}
             votedCount={votedCount}
             votingTotal={snapshot.members.length}
             inviteUrl={inviteUrl}

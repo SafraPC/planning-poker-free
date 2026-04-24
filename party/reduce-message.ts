@@ -34,7 +34,6 @@ export function reduceMessage(
     state.hostId = connectionId;
     state.roomOpen = true;
     state.phase = "lobby";
-    state.task = null;
     state.revealEndsAt = null;
     return { ok: true };
   }
@@ -101,23 +100,6 @@ export function reduceMessage(
     return { ok: true };
   }
 
-  if (msg.type === "SET_TASK") {
-    const h = hostOnly();
-    if (!h.ok) return h;
-    if (state.phase !== "draft") {
-      return {
-        ok: false,
-        code: "INVALID_PHASE",
-        message: "Só é possível editar o tema no rascunho.",
-      };
-    }
-    state.task = {
-      title: msg.task.title.trim(),
-      description: msg.task.description?.trim() || undefined,
-    };
-    return { ok: true };
-  }
-
   if (msg.type === "HOST_START_VOTING") {
     const h = hostOnly();
     if (!h.ok) return h;
@@ -125,7 +107,7 @@ export function reduceMessage(
       return {
         ok: false,
         code: "INVALID_PHASE",
-        message: "Inicie o rascunho antes da votação.",
+        message: "Abra a etapa de preparo antes da votação.",
       };
     }
     state.phase = "voting";

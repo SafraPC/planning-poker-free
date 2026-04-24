@@ -112,29 +112,6 @@ describe("reduceMessage", () => {
       expect(again.ok).toBe(false);
     });
 
-    it("SET_TASK só durante o draft", () => {
-      const fail = send(state, HOST, {
-        type: "SET_TASK",
-        task: { title: "X" },
-      });
-      expect(fail.ok).toBe(false);
-      send(state, HOST, { type: "HOST_ENTER_DRAFT" });
-      const ok = send(state, HOST, {
-        type: "SET_TASK",
-        task: { title: "Refatorar checkout", description: "  ctx  " },
-      });
-      expect(ok.ok).toBe(true);
-      expect(state.task?.title).toBe("Refatorar checkout");
-      expect(state.task?.description).toBe("ctx");
-    });
-
-    it("SET_TASK rejeita guest", () => {
-      send(state, HOST, { type: "HOST_ENTER_DRAFT" });
-      const r = send(state, G1, { type: "SET_TASK", task: { title: "X" } });
-      expect(r.ok).toBe(false);
-      if (!r.ok) expect(r.code).toBe("HOST_ONLY");
-    });
-
     it("HOST_START_VOTING zera votos e troca fase", () => {
       send(state, HOST, { type: "HOST_ENTER_DRAFT" });
       state.members[G1].vote = "M";

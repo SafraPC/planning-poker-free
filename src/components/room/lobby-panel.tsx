@@ -62,12 +62,12 @@ export function LobbyPanel({
               )}
               {copied ? "Copiado" : "Copiar convite"}
             </Button>
-            <Button onClick={onEnterDraft}>Ir para o rascunho</Button>
+            <Button onClick={onEnterDraft}>Continuar</Button>
           </div>
         </div>
       ) : (
         <p className="text-sm text-ink-muted">
-          Aguardando o anfitrião abrir o rascunho.
+          Aguardando o anfitrião continuar.
         </p>
       )}
     </div>
