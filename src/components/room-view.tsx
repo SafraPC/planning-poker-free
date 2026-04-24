@@ -183,6 +183,8 @@ export function RoomView({
         roomName={snapshot.roomName}
         connected={connected}
         reconnecting={reconnecting}
+        isHost={snapshot.isHost}
+        inviteUrl={inviteUrl}
       />
       <AnimatePresence>
         {lastError ? (

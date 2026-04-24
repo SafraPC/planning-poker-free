@@ -1,10 +1,9 @@
 "use client";
 
-import { Check, Link2, Users } from "lucide-react";
-import { useState } from "react";
+import { Users } from "lucide-react";
 import { MAX_PARTICIPANTS } from "@shared/types";
 import { Button } from "@/components/ui/button";
-import { COPY_FEEDBACK_MS } from "@/lib/constants";
+import { CopyInviteControl } from "@/components/room/copy-invite-control";
 
 interface Props {
   isHost: boolean;
@@ -19,15 +18,6 @@ export function LobbyPanel({
   inviteUrl,
   onEnterDraft,
 }: Props) {
-  const [copied, setCopied] = useState(false);
-
-  async function copyInvite() {
-    if (typeof window === "undefined" || !inviteUrl) return;
-    await navigator.clipboard.writeText(inviteUrl);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
-  }
-
   return (
     <div className="flex flex-col items-center gap-5 py-2">
       <div className="text-center">
@@ -48,20 +38,11 @@ export function LobbyPanel({
             {inviteUrl}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
-            <Button
-              variant="secondary"
+            <CopyInviteControl
+              inviteUrl={inviteUrl}
               size="md"
-              onClick={copyInvite}
-              disabled={!inviteUrl}
-              aria-live="polite"
-            >
-              {copied ? (
-                <Check className="h-3.5 w-3.5" aria-hidden />
-              ) : (
-                <Link2 className="h-3.5 w-3.5" aria-hidden />
-              )}
-              {copied ? "Copiado" : "Copiar convite"}
-            </Button>
+              label="Copiar convite"
+            />
             <Button onClick={onEnterDraft}>Continuar</Button>
           </div>
         </div>

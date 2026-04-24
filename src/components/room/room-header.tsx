@@ -3,15 +3,24 @@
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { CopyInviteControl } from "@/components/room/copy-invite-control";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 interface Props {
   roomName: string;
   connected: boolean;
   reconnecting: boolean;
+  isHost: boolean;
+  inviteUrl: string;
 }
 
-export function RoomHeader({ roomName, connected, reconnecting }: Props) {
+export function RoomHeader({
+  roomName,
+  connected,
+  reconnecting,
+  isHost,
+  inviteUrl,
+}: Props) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-4">
@@ -51,6 +60,7 @@ export function RoomHeader({ roomName, connected, reconnecting }: Props) {
             </>
           )}
         </Badge>
+        {isHost ? <CopyInviteControl inviteUrl={inviteUrl} /> : null}
         <ThemeToggle />
       </div>
     </header>
