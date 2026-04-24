@@ -2,21 +2,16 @@
 
 import { useEffect, useRef } from "react";
 import type { TaskPayload } from "@shared/types";
+import { FieldLabel, Input, Textarea } from "@/components/ui/input";
 
-const inputClass =
-  "rounded-2xl border border-white/15 bg-white/60 px-4 py-3 text-sm font-medium text-ink shadow-inner outline-none ring-accent focus:ring-2 dark:border-white/10 dark:bg-table-inner";
-
-export function TaskEditor({
-  task,
-  readOnly,
-  autoFocus,
-  onChange,
-}: {
+interface Props {
   task: TaskPayload;
   readOnly?: boolean;
   autoFocus?: boolean;
   onChange: (t: TaskPayload) => void;
-}) {
+}
+
+export function TaskEditor({ task, readOnly, autoFocus, onChange }: Props) {
   const titleRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -26,39 +21,27 @@ export function TaskEditor({
   }, [autoFocus, readOnly]);
 
   return (
-    <div className="glass-panel w-full max-w-2xl space-y-4 p-6">
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="task-title"
-          className="text-ink-muted text-xs font-semibold uppercase tracking-wide"
-        >
-          Título
-        </label>
-        <input
+    <div className="surface-card w-full max-w-2xl space-y-4 p-5 shadow-soft">
+      <div className="flex flex-col gap-1.5">
+        <FieldLabel htmlFor="task-title">Título</FieldLabel>
+        <Input
           id="task-title"
           ref={titleRef}
           value={task.title}
           disabled={readOnly}
           onChange={(e) => onChange({ ...task, title: e.target.value })}
           placeholder="Ex.: Refatorar checkout"
-          className={inputClass}
         />
       </div>
-      <div className="flex flex-col gap-2">
-        <label
-          htmlFor="task-notes"
-          className="text-ink-muted text-xs font-semibold uppercase tracking-wide"
-        >
-          Notas
-        </label>
-        <textarea
+      <div className="flex flex-col gap-1.5">
+        <FieldLabel htmlFor="task-notes">Notas</FieldLabel>
+        <Textarea
           id="task-notes"
           value={task.description ?? ""}
           disabled={readOnly}
           onChange={(e) => onChange({ ...task, description: e.target.value })}
           rows={4}
           placeholder="Contexto rápido, critérios, links..."
-          className={inputClass}
         />
       </div>
     </div>

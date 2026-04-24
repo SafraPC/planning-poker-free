@@ -8,6 +8,7 @@ import type { ClientMessage } from "@shared/wire";
 import { DramaOverlay } from "@/components/drama-overlay";
 import { PokerTable } from "@/components/poker-table";
 import { ResultsPanel } from "@/components/results-panel";
+import { TaskHeadline } from "@/components/room/task-headline";
 import { UnanimityConfetti } from "@/components/unanimity-confetti";
 import { DraftPanel } from "@/components/room/draft-panel";
 import { ErrorBanner } from "@/components/room/error-banner";
@@ -27,17 +28,23 @@ interface Props {
   intentHost: boolean;
 }
 
+interface PhaseStageProps {
+  snapshot: RoomSnapshot;
+  send: (msg: ClientMessage) => void;
+  taskDraft: ReturnType<typeof useTaskDraft>[0];
+  setTaskDraft: ReturnType<typeof useTaskDraft>[1];
+  votedCount: number;
+  votingTotal: number;
+}
+
 function PhaseStage({
   snapshot,
   send,
   taskDraft,
   setTaskDraft,
-}: {
-  snapshot: RoomSnapshot;
-  send: (msg: ClientMessage) => void;
-  taskDraft: ReturnType<typeof useTaskDraft>[0];
-  setTaskDraft: ReturnType<typeof useTaskDraft>[1];
-}) {
+  votedCount,
+  votingTotal,
+}: PhaseStageProps) {
   const { phase, isHost, members, selfId } = snapshot;
   const self = members.find((m) => m.id === selfId);
 
@@ -65,6 +72,8 @@ function PhaseStage({
       <VotingPanel
         isHost={isHost}
         self={self}
+        votedCount={votedCount}
+        totalCount={votingTotal}
         onVote={(v) => send({ type: "CAST_VOTE", vote: v })}
         onReveal={() => send({ type: "HOST_REVEAL" })}
       />
@@ -72,7 +81,7 @@ function PhaseStage({
   }
   if (phase === "revealing") {
     return (
-      <p className="text-ink-muted text-sm" aria-live="polite">
+      <p className="text-sm text-ink-muted" aria-live="polite">
         Preparando a revelação...
       </p>
     );
@@ -111,6 +120,11 @@ export function RoomView({
     [snapshot.members],
   );
 
+  const votedCount = useMemo(
+    () => snapshot.members.filter((m) => m.hasVoted).length,
+    [snapshot.members],
+  );
+
   const agreement = useMemo(() => computeAgreement(votes), [votes]);
   const celebrate = snapshot.phase === "revealed" && isFullUnanimity(votes);
 
@@ -122,43 +136,49 @@ export function RoomView({
     return (
       <WaitCard
         title="Abrindo sua mesa"
-        subtitle="Estamos reservando seu lugar de anfitrião na sala única."
+        subtitle="Reservando seu lugar de anfitrião na sala única."
       />
     );
   }
 
-  if (
-    !intentHost &&
-    !snapshot.members.some((m) => m.id === snapshot.selfId)
-  ) {
+  if (!intentHost && !snapshot.members.some((m) => m.id === snapshot.selfId)) {
     if (!snapshot.roomOpen) {
       return (
         <WaitCard
           title="Aguardando anfitrião"
-          subtitle="Assim que a sala for criada você entrará automaticamente na mesma mesa."
+          subtitle="Assim que a sala for criada você entra automaticamente."
         />
       );
     }
     return (
       <WaitCard
         title="Entrando na sala"
-        subtitle="Sincronizando seu nome com os demais participantes."
+        subtitle="Sincronizando seu nome com o time."
       />
     );
   }
+
+  const showTask =
+    (snapshot.phase === "voting" ||
+      snapshot.phase === "revealing" ||
+      snapshot.phase === "revealed") &&
+    Boolean(snapshot.task?.title);
 
   const tableCenter = (
     <div className="relative flex w-full flex-col items-center gap-4 text-center">
       <DramaOverlay
         endsAt={snapshot.phase === "revealing" ? snapshot.revealEndsAt : null}
       />
+      {showTask && snapshot.task ? (
+        <TaskHeadline task={snapshot.task} />
+      ) : null}
       <AnimatePresence mode="wait">
         <motion.div
           key={snapshot.phase}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25, ease: "easeOut" }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
           className="flex w-full flex-col items-center gap-4"
         >
           <PhaseStage
@@ -166,6 +186,8 @@ export function RoomView({
             send={send}
             taskDraft={taskDraft}
             setTaskDraft={setTaskDraft}
+            votedCount={votedCount}
+            votingTotal={snapshot.members.length}
           />
         </motion.div>
       </AnimatePresence>
@@ -173,7 +195,7 @@ export function RoomView({
   );
 
   return (
-    <div className="relative mx-auto flex min-h-dvh max-w-6xl flex-col gap-8 px-4 pb-16 pt-8">
+    <div className="relative isolate mx-auto flex min-h-dvh max-w-6xl flex-col gap-8 px-6 pb-16 pt-8">
       <UnanimityConfetti fire={celebrate} />
       <RoomHeader roomName={snapshot.roomName} connected={connected} />
       <AnimatePresence>

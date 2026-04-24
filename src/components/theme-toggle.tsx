@@ -6,31 +6,27 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
 
 export function ThemeToggle({ className }: { className?: string }) {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => setMounted(true), []);
-  if (!mounted) {
-    return (
-      <span
-        className={cn(
-          "inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/10",
-          className,
-        )}
-      />
-    );
-  }
+
   const dark = resolvedTheme === "dark";
+  const baseClass =
+    "inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-elevated text-ink-muted transition-colors hover:border-border-strong hover:text-ink";
+
+  if (!mounted) {
+    return <span className={cn(baseClass, className)} aria-hidden />;
+  }
+
   return (
     <button
       type="button"
-      aria-label={dark ? "Tema claro" : "Tema escuro"}
+      aria-label={dark ? "Mudar para tema claro" : "Mudar para tema escuro"}
       onClick={() => setTheme(dark ? "light" : "dark")}
-      className={cn(
-        "inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-ink shadow-card backdrop-blur-md transition-colors hover:bg-white/20 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10",
-        className,
-      )}
+      className={cn(baseClass, "focus-ring", className)}
     >
-      {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, Link2 } from "lucide-react";
+import { Check, Link2, Users } from "lucide-react";
 import { useState } from "react";
 import { MAX_PARTICIPANTS } from "@shared/types";
+import { Button } from "@/components/ui/button";
 import { COPY_FEEDBACK_MS, INVITE_PATH } from "@/lib/constants";
 
 interface Props {
@@ -23,37 +24,39 @@ export function LobbyPanel({ isHost, memberCount, onEnterDraft }: Props) {
   }
 
   return (
-    <div className="space-y-3 px-2">
-      <p className="font-display text-lg text-ink">Sala pronta</p>
-      <p className="text-ink-muted text-sm">
-        Compartilhe o link com o time ({memberCount}/{MAX_PARTICIPANTS}).
-      </p>
+    <div className="flex flex-col items-center gap-5 py-2">
+      <div className="text-center">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
+          Aguardando o time
+        </p>
+        <p className="mt-1.5 font-display text-2xl font-semibold tracking-tight">
+          Sala pronta
+        </p>
+        <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-muted">
+          <Users className="h-3.5 w-3.5" aria-hidden />
+          {memberCount} de {MAX_PARTICIPANTS} {memberCount === 1 ? "pessoa" : "pessoas"}
+        </p>
+      </div>
       {isHost ? (
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="md"
             onClick={copyInvite}
             aria-live="polite"
-            className="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/40 px-4 py-2 text-sm font-semibold shadow-sm backdrop-blur-md transition-colors hover:bg-white/60 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
           >
             {copied ? (
-              <Check className="h-4 w-4" aria-hidden />
+              <Check className="h-3.5 w-3.5" aria-hidden />
             ) : (
-              <Link2 className="h-4 w-4" aria-hidden />
+              <Link2 className="h-3.5 w-3.5" aria-hidden />
             )}
             {copied ? "Copiado" : "Copiar convite"}
-          </button>
-          <button
-            type="button"
-            onClick={onEnterDraft}
-            className="rounded-2xl bg-accent px-5 py-2 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.02]"
-          >
-            Ir para o rascunho
-          </button>
+          </Button>
+          <Button onClick={onEnterDraft}>Ir para o rascunho</Button>
         </div>
       ) : (
-        <p className="text-ink-muted text-sm">
-          Aguardando o anfitrião iniciar o rascunho.
+        <p className="text-sm text-ink-muted">
+          Aguardando o anfitrião abrir o rascunho.
         </p>
       )}
     </div>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export function DramaOverlay({ endsAt }: { endsAt: number | null }) {
   const [left, setLeft] = useState(0);
+
   useEffect(() => {
     if (!endsAt) {
       setLeft(0);
@@ -15,9 +16,10 @@ export function DramaOverlay({ endsAt }: { endsAt: number | null }) {
       setLeft(Math.ceil(ms / 1000));
     };
     tick();
-    const id = window.setInterval(tick, 120);
+    const id = window.setInterval(tick, 100);
     return () => window.clearInterval(id);
   }, [endsAt]);
+
   return (
     <AnimatePresence>
       {endsAt ? (
@@ -25,18 +27,18 @@ export function DramaOverlay({ endsAt }: { endsAt: number | null }) {
           role="status"
           aria-live="assertive"
           aria-label={`Revelando em ${left} segundo${left === 1 ? "" : "s"}`}
-          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-surface/70 backdrop-blur-md dark:bg-surface/80"
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-surface/85 backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
             key={left}
-            initial={{ scale: 0.7, opacity: 0 }}
+            initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.1, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 22 }}
-            className="font-display text-6xl font-bold text-accent drop-shadow-sm sm:text-7xl"
+            exit={{ scale: 1.4, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 280, damping: 22 }}
+            className="font-display text-7xl font-semibold tracking-tighter text-ink sm:text-8xl"
           >
             {left}
           </motion.div>

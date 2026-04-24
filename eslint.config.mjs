@@ -8,6 +8,18 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const config = [...compat.extends("next/core-web-vitals")];
+const config = [
+  {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "dist/**",
+      "build/**",
+      ".partykit/**",
+      "coverage/**",
+    ],
+  },
+  ...compat.extends("next/core-web-vitals"),
+];
 
 export default config;

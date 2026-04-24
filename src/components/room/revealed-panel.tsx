@@ -1,6 +1,7 @@
 "use client";
 
-import { cn } from "@/lib/cn";
+import { RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   isHost: boolean;
@@ -9,22 +10,21 @@ interface Props {
 
 export function RevealedPanel({ isHost, onNewRound }: Props) {
   return (
-    <div className="flex w-full flex-col items-center gap-3">
-      <button
-        type="button"
+    <div className="flex w-full flex-col items-center gap-3 py-2">
+      <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
+        Resultado revelado
+      </p>
+      <Button
+        variant="primary"
+        size="lg"
         disabled={!isHost}
         onClick={onNewRound}
-        className={cn(
-          "rounded-2xl px-6 py-3 text-sm font-semibold shadow-md transition-transform",
-          isHost
-            ? "bg-table-inner text-ink hover:scale-[1.02] dark:bg-white/10 dark:text-white"
-            : "cursor-not-allowed opacity-50",
-        )}
       >
+        <RotateCcw className="h-4 w-4" aria-hidden />
         Iniciar nova votação
-      </button>
+      </Button>
       {!isHost ? (
-        <p className="text-ink-muted text-xs">
+        <p className="text-xs text-ink-muted">
           Somente o anfitrião reinicia a mesa.
         </p>
       ) : null}

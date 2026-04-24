@@ -1,73 +1,73 @@
 "use client";
 
-import { Pencil } from "lucide-react";
+import { Crown } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Phase, RoomMember, VoteValue } from "@shared/types";
 import { cn } from "@/lib/cn";
 import { VoteCardFace } from "@/components/vote-token";
 
-export function PlayerSeat({
-  member,
-  self,
-  phase,
-  modeValue,
-}: {
+interface Props {
   member: RoomMember;
   self: boolean;
   phase: Phase;
   modeValue: VoteValue | null;
-}) {
-  const faceUp =
-    phase === "revealed" ||
-    (phase === "voting" && self && member.vote !== null);
-  const showGlyph =
-    phase === "revealed"
+}
+
+function resolveCardState(member: RoomMember, phase: Phase, self: boolean) {
+  const revealed = phase === "revealed";
+  const myTurn = phase === "voting" && self && member.vote !== null;
+  const faceUp = revealed || myTurn;
+  const showValue = revealed
+    ? member.vote
+    : myTurn
       ? member.vote
-      : phase === "voting" && self
-        ? member.vote
-        : null;
-  const majorityGlow =
+      : null;
+  return {
+    faceUp: phase === "revealing" ? false : faceUp,
+    value: showValue,
+  };
+}
+
+export function PlayerSeat({ member, self, phase, modeValue }: Props) {
+  const { faceUp, value } = resolveCardState(member, phase, self);
+  const isMajority =
     phase === "revealed" &&
     member.vote !== null &&
-    modeValue !== null &&
     member.vote === modeValue &&
     member.vote !== "COFFEE";
+
   return (
     <motion.div
       layout
-      className="flex flex-col items-center gap-2"
-      initial={{ opacity: 0, y: 10 }}
+      className="flex flex-col items-center gap-2.5"
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 320, damping: 28 }}
     >
       <div className="relative">
         {member.role === "host" ? (
           <span
-            className="absolute -left-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-accent text-white shadow-md"
+            className="absolute -right-1 -top-1 z-10 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface-elevated text-ink shadow-soft"
             aria-label="Anfitrião"
           >
-            <Pencil className="h-3.5 w-3.5" strokeWidth={2.4} />
+            <Crown className="h-2.5 w-2.5" strokeWidth={2.5} />
           </span>
         ) : null}
-        <VoteCardFace
-          value={showGlyph}
-          faceUp={
-            phase === "revealing"
-              ? false
-              : faceUp
-          }
-          glow={Boolean(majorityGlow)}
-        />
+        <VoteCardFace value={value} faceUp={faceUp} glow={isMajority} pending={member.hasVoted && !faceUp} />
       </div>
-      <div
-        className={cn(
-          "max-w-[6.5rem] truncate text-center font-display text-sm font-semibold",
-          self ? "text-accent" : "text-ink",
-        )}
-      >
-        {member.name}
+      <div className="text-center">
+        <p
+          className={cn(
+            "max-w-[7rem] truncate font-display text-sm font-semibold tracking-tight",
+            self ? "text-ink" : "text-ink",
+          )}
+        >
+          {member.name}
+        </p>
         {self ? (
-          <span className="text-ink-muted block text-[10px] font-normal">você</span>
+          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-ink-muted">
+            você
+          </p>
         ) : null}
       </div>
     </motion.div>

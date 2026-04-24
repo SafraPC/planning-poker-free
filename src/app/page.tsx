@@ -1,88 +1,113 @@
-import { ArrowRight, Radio, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Coffee, Radio, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+const FEATURES = [
+  {
+    icon: Radio,
+    title: "Tempo real edge",
+    body: "PartyKit em WebSocket de baixa latência. Uma única sala compartilhada.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Sem persistência",
+    body: "Estados vivem na memória da sessão. Nada salvo, nada exposto.",
+  },
+  {
+    icon: Sparkles,
+    title: "Reveal cinematográfico",
+    body: "Contagem dramática de 3s, flip 3D nas cartas e confetes na unanimidade.",
+  },
+  {
+    icon: Coffee,
+    title: "Café neutro",
+    body: "Quem só observa marca café — fora das estatísticas, dentro da mesa.",
+  },
+];
 
 export default function HomePage() {
   return (
-    <div className="relative isolate min-h-dvh overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-accent/15 via-transparent to-accent/10" />
-      <div className="noise pointer-events-none absolute inset-0 opacity-60" />
-      <div className="relative mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-16 pt-10">
-        <header className="flex items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <span className="bg-accent/15 text-accent flex h-11 w-11 items-center justify-center rounded-2xl font-display text-lg font-semibold">
-              PP
+    <div className="relative isolate min-h-dvh">
+      <div className="pointer-events-none absolute inset-0 grid-bg opacity-60" />
+      <div className="relative mx-auto flex max-w-6xl flex-col gap-20 px-6 pb-24 pt-8">
+        <header className="flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ink text-surface font-display text-sm font-semibold tracking-tight">
+              pp
             </span>
-            <div>
-              <p className="font-display text-lg font-semibold">Planning Poker Free</p>
-              <p className="text-ink-muted text-xs">Estimativas em camiseta, ao vivo</p>
-            </div>
-          </div>
+            <span className="font-display text-base font-semibold tracking-tight">
+              Planning Poker
+            </span>
+          </Link>
           <ThemeToggle />
         </header>
 
-        <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div className="space-y-6">
-            <p className="text-accent inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em]">
-              <Sparkles className="h-4 w-4" />
-              Sem cadastro • WebSocket em tempo real
-            </p>
-            <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl lg:text-6xl">
-              Decisões alinhadas, estética premium e zero fricção
-            </h1>
-            <p className="text-ink-muted max-w-2xl text-lg">
-              Uma sala única pensada para squads que precisam estimar rápido: cartas XS–XL, pausa com café
-              fora das estatísticas, contagem dramática e confetes na unanimidade.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/anfitriao"
-                className="inline-flex items-center gap-2 rounded-2xl bg-accent px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition-transform active:translate-y-[1px]"
-              >
-                Sou anfitrião
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/sala"
-                className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/40 px-6 py-3 text-sm font-semibold backdrop-blur-md transition-colors hover:border-accent/50 dark:border-white/10 dark:bg-white/5"
-              >
-                Entrar como convidado
-              </Link>
-            </div>
+        <section className="flex flex-col items-start gap-8 pt-8 sm:gap-10">
+          <Badge tone="accent">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            Free, sem cadastro, em tempo real
+          </Badge>
+          <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-tighter sm:text-6xl lg:text-7xl">
+            Estimativas de squad,
+            <br />
+            <span className="text-ink-muted">sem fricção.</span>
+          </h1>
+          <p className="max-w-2xl text-lg text-ink-muted">
+            Uma sala única para até 8 pessoas. Cartas em camiseta, café fora das
+            estatísticas, e uma experiência polida do convite ao reveal.
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/anfitriao"
+              className="inline-flex h-12 items-center gap-2 rounded-lg bg-ink px-6 text-sm font-medium tracking-tight text-surface shadow-soft transition-transform hover:-translate-y-px"
+            >
+              Sou anfitrião
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/sala"
+              className="inline-flex h-12 items-center gap-2 rounded-lg border border-border bg-surface-elevated px-6 text-sm font-medium tracking-tight text-ink transition-colors hover:border-border-strong hover:bg-surface-muted"
+            >
+              Entrar como convidado
+            </Link>
           </div>
-          <div className="glass-panel relative overflow-hidden p-8">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/15 via-transparent to-transparent" />
-            <div className="relative space-y-4">
-              {[
-                {
-                  icon: Radio,
-                  title: "PartyKit WebSockets",
-                  body: "Tempo real na borda com uma sala compartilhada — ideal para Vercel + PartyKit.",
-                },
-                {
-                  icon: ShieldCheck,
-                  title: "Sem persistência",
-                  body: "Os dados vivem na sessão ao vivo: privacidade simples para times internos.",
-                },
-                {
-                  icon: Sparkles,
-                  title: "Experiência cinematográfica",
-                  body: "Contagem regressiva dramática, cartas com flip 3D e confetes na unanimidade.",
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="flex gap-4 rounded-2xl border border-white/10 bg-white/30 p-4 dark:border-white/5 dark:bg-white/5"
-                >
-                  <item.icon className="text-accent mt-1 h-6 w-6" />
-                  <div>
-                    <p className="font-display text-base font-semibold">{item.title}</p>
-                    <p className="text-ink-muted text-sm">{item.body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        </section>
+
+        <section className="grid gap-3 sm:grid-cols-2">
+          {FEATURES.map(({ icon: Icon, title, body }) => (
+            <article
+              key={title}
+              className="surface-card flex gap-4 p-5 transition-colors hover:border-border-strong"
+            >
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-muted text-ink">
+                <Icon className="h-4 w-4" strokeWidth={2.25} />
+              </span>
+              <div>
+                <h3 className="font-display text-base font-semibold tracking-tight">
+                  {title}
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-ink-muted">
+                  {body}
+                </p>
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section className="surface-card flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div>
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
+              Deck
+            </p>
+            <p className="mt-2 font-display text-2xl font-semibold tracking-tight">
+              XS · S · M · L · XL · ? · café
+            </p>
           </div>
+          <p className="max-w-xs text-sm text-ink-muted">
+            2h, 4h, 6–8h, 16h, 32–40h, desconhecido e pausa. Café não soma — só
+            participa da conversa.
+          </p>
         </section>
       </div>
     </div>

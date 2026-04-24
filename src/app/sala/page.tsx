@@ -4,6 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import type { ClientMessage } from "@shared/wire";
 import { RoomView } from "@/components/room-view";
+import { GuestEntry } from "@/components/room/guest-entry";
+import { WaitCard } from "@/components/room/wait-card";
 import { usePlanningSocket } from "@/hooks/use-planning-socket";
 
 function SalaContent() {
@@ -72,50 +74,30 @@ function SalaContent() {
 
   if (intentHost && (!hostName || !hostRoom)) {
     return (
-      <div className="flex min-h-dvh items-center justify-center text-sm text-ink-muted">
-        Redirecionando para o cadastro do anfitrião...
-      </div>
+      <WaitCard
+        title="Redirecionando"
+        subtitle="Voltando para o cadastro do anfitrião..."
+      />
     );
   }
 
   if (!intentHost && !guestReady) {
     return (
-      <div className="mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-6 px-4 py-10">
-        <div>
-          <p className="text-ink-muted text-xs uppercase tracking-[0.26em]">Convidado</p>
-          <h1 className="font-display text-3xl font-semibold">Entrar na sala</h1>
-          <p className="text-ink-muted mt-2 text-sm">
-            Uma única sala compartilhada — use o mesmo link que o anfitrião enviou.
-          </p>
-        </div>
-        <div className="glass-panel space-y-3 p-6">
-          <label className="text-ink-muted text-xs font-semibold uppercase tracking-wide">
-            Seu nome
-          </label>
-          <input
-            value={guestName}
-            onChange={(e) => setGuestName(e.target.value)}
-            placeholder="Como quer aparecer na mesa"
-            className="w-full rounded-2xl border border-white/15 bg-white/60 px-4 py-3 text-sm outline-none ring-accent focus:ring-2 dark:border-white/10 dark:bg-table-inner"
-          />
-          <button
-            type="button"
-            disabled={!guestName.trim()}
-            onClick={() => setGuestReady(true)}
-            className="w-full rounded-2xl bg-accent py-3 text-sm font-semibold text-white shadow-md disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Conectar
-          </button>
-        </div>
-      </div>
+      <GuestEntry
+        onJoin={(n) => {
+          setGuestName(n);
+          setGuestReady(true);
+        }}
+      />
     );
   }
 
   if (!ready || !snapshot) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-3 px-4 text-center text-sm text-ink-muted">
-        Conectando à sala compartilhada...
-      </div>
+      <WaitCard
+        title="Conectando"
+        subtitle="Estabelecendo o WebSocket com a sala compartilhada..."
+      />
     );
   }
 
@@ -135,9 +117,10 @@ export default function SalaPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-dvh items-center justify-center text-sm text-ink-muted">
-          Carregando sala...
-        </div>
+        <WaitCard
+          title="Carregando"
+          subtitle="Preparando a mesa de planning poker..."
+        />
       }
     >
       <SalaContent />

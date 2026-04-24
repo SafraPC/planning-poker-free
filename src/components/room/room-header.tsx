@@ -1,8 +1,9 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { cn } from "@/lib/cn";
 
 interface Props {
   roomName: string;
@@ -12,33 +13,35 @@ interface Props {
 export function RoomHeader({ roomName, connected }: Props) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-4">
-      <div>
-        <p className="text-ink-muted text-xs uppercase tracking-[0.24em]">
-          Planning poker
-        </p>
-        <h1 className="font-display text-3xl font-semibold">
-          {roomName || "Sala"}
-        </h1>
+      <div className="flex items-center gap-4">
+        <Link href="/" className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-ink text-surface font-display text-sm font-semibold tracking-tight">
+            pp
+          </span>
+        </Link>
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
+            Sala
+          </p>
+          <h1 className="font-display text-xl font-semibold tracking-tight">
+            {roomName || "Planning Poker"}
+          </h1>
+        </div>
       </div>
-      <div className="flex items-center gap-3">
-        <span
-          aria-live="polite"
-          className={cn(
-            "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold",
-            connected
-              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"
-              : "bg-amber-500/15 text-amber-700 dark:text-amber-200",
-          )}
-        >
+      <div className="flex items-center gap-2">
+        <Badge tone={connected ? "success" : "warning"} aria-live="polite">
           {connected ? (
-            "Conectado"
+            <>
+              <span className="h-1.5 w-1.5 rounded-full bg-success" />
+              Conectado
+            </>
           ) : (
             <>
-              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+              <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
               Conectando
             </>
           )}
-        </span>
+        </Badge>
         <ThemeToggle />
       </div>
     </header>

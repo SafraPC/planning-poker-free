@@ -7,7 +7,7 @@ import { cn } from "@/lib/cn";
 
 export function voteLabel(v: VoteValue) {
   if (v === "UNKNOWN") return "?";
-  if (v === "COFFEE") return "coffee";
+  if (v === "COFFEE") return "café";
   return v;
 }
 
@@ -20,32 +20,37 @@ export function VoteGlyph({
   className?: string;
   large?: boolean;
 }) {
-  const size = large ? "text-2xl" : "text-lg";
+  const size = large ? "text-3xl" : "text-lg";
   if (value === "COFFEE") {
     return (
       <Coffee
-        className={cn(size, "text-accent", className)}
+        className={cn(large ? "h-7 w-7" : "h-4 w-4", className)}
         strokeWidth={2.25}
         aria-hidden
       />
     );
   }
   return (
-    <span className={cn("font-display font-semibold tracking-tight", size, className)}>
+    <span
+      className={cn(
+        "font-display font-semibold tracking-tighter leading-none",
+        size,
+        className,
+      )}
+    >
       {voteLabel(value)}
     </span>
   );
 }
 
-export function VoteCardFace({
-  value,
-  faceUp,
-  glow,
-}: {
+interface CardFaceProps {
   value: VoteValue | null;
   faceUp: boolean;
   glow?: boolean;
-}) {
+  pending?: boolean;
+}
+
+export function VoteCardFace({ value, faceUp, glow, pending }: CardFaceProps) {
   return (
     <div
       className="relative h-28 w-20 sm:h-32 sm:w-24"
@@ -60,11 +65,10 @@ export function VoteCardFace({
       >
         <div
           className={cn(
-            "absolute inset-0 flex flex-col items-center justify-center rounded-2xl border-2 bg-gradient-to-br p-2 shadow-card",
+            "absolute inset-0 flex flex-col items-center justify-center rounded-xl border bg-surface-elevated p-2 transition-shadow",
             glow
-              ? "border-white ring-2 ring-white/80 dark:ring-white/50"
-              : "border-ringbrand/60 dark:border-ringbrand/40",
-            "from-white/90 to-surface-muted/90 dark:from-table-inner dark:to-table",
+              ? "border-accent shadow-glow"
+              : "border-border shadow-soft",
           )}
           style={{
             backfaceVisibility: "hidden",
@@ -74,20 +78,34 @@ export function VoteCardFace({
           {value ? (
             <VoteGlyph value={value} large />
           ) : (
-            <span className="text-ink-muted text-xs font-medium">—</span>
+            <span className="text-xs font-medium text-ink-faint">—</span>
           )}
         </div>
         <div
-          className="absolute inset-0 flex items-center justify-center rounded-2xl border-2 border-accent/40 bg-gradient-to-br from-accent/25 via-surface-muted to-table-inner shadow-inner dark:from-accent/30"
+          className={cn(
+            "absolute inset-0 flex items-center justify-center rounded-xl border bg-ink shadow-soft",
+            pending ? "border-ink ring-2 ring-accent/40" : "border-ink/80",
+          )}
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
           }}
         >
-          <div className="h-10 w-10 rounded-xl border border-white/30 bg-white/10 dark:border-white/10" />
+          <CardBackPattern />
         </div>
       </motion.div>
+    </div>
+  );
+}
+
+function CardBackPattern() {
+  return (
+    <div className="flex h-12 w-9 flex-col items-center justify-center gap-1 rounded-md border border-surface/15">
+      <span className="font-display text-[10px] font-semibold uppercase tracking-[0.3em] text-surface/70">
+        pp
+      </span>
+      <span className="h-px w-4 bg-surface/30" />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import type { TaskPayload } from "@shared/types";
 import { TaskEditor } from "@/components/task-editor";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   isHost: boolean;
@@ -17,7 +18,15 @@ export function DraftPanel({
   onStartVoting,
 }: Props) {
   return (
-    <div className="flex w-full flex-col items-center gap-4">
+    <div className="flex w-full flex-col items-center gap-5 py-2">
+      <div className="text-center">
+        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
+          Rascunho
+        </p>
+        <p className="mt-1.5 font-display text-xl font-semibold tracking-tight">
+          {isHost ? "O que vamos estimar?" : "Definindo o que estimar..."}
+        </p>
+      </div>
       <TaskEditor
         task={task}
         readOnly={!isHost}
@@ -25,15 +34,11 @@ export function DraftPanel({
         onChange={onTaskChange}
       />
       {isHost ? (
-        <button
-          type="button"
-          onClick={onStartVoting}
-          className="rounded-2xl bg-accent px-6 py-3 font-semibold text-white shadow-lg transition-transform hover:scale-[1.02]"
-        >
+        <Button size="lg" onClick={onStartVoting}>
           Iniciar votação
-        </button>
+        </Button>
       ) : (
-        <p className="text-ink-muted text-sm">
+        <p className="text-sm text-ink-muted">
           Aguardando o anfitrião abrir a votação.
         </p>
       )}

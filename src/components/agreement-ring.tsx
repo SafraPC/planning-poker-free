@@ -1,78 +1,66 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { cn } from "@/lib/cn";
 
-function SyncMascot({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 64 64"
-      className={className}
-      aria-hidden
-    >
-      <circle cx="32" cy="30" r="22" fill="currentColor" className="text-table-inner dark:text-table" />
-      <circle cx="24" cy="28" r="4" fill="currentColor" className="text-ink" />
-      <circle cx="40" cy="28" r="4" fill="currentColor" className="text-ink" />
-      <path
-        d="M22 42c4 6 16 6 20 0"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        className="text-ink"
-      />
-      <path
-        d="M48 14c4 2 6 6 4 10-1 3-5 4-8 2"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        className="text-accent"
-      />
-    </svg>
-  );
+const SIZE = 112;
+const STROKE = 7;
+const RADIUS = (SIZE - STROKE) / 2;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+function classifyAgreement(p: number) {
+  if (p >= 80) return { label: "Forte", tone: "text-success" };
+  if (p >= 60) return { label: "Bom", tone: "text-success" };
+  if (p >= 40) return { label: "Misto", tone: "text-warning" };
+  return { label: "Baixo", tone: "text-danger" };
 }
 
 export function AgreementRing({ percent }: { percent: number }) {
-  const r = 28;
-  const c = 2 * Math.PI * r;
   const p = Math.min(100, Math.max(0, percent));
-  const offset = c * (1 - p / 100);
+  const offset = CIRCUMFERENCE * (1 - p / 100);
+  const { label, tone } = classifyAgreement(p);
+
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-ink-muted text-xs font-semibold uppercase tracking-wide">
+      <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
         Sincronia
       </span>
-      <div className="relative h-28 w-28">
-        <svg viewBox="0 0 72 72" className="h-full w-full -rotate-90">
+      <div className="relative" style={{ width: SIZE, height: SIZE }}>
+        <svg width={SIZE} height={SIZE} className="-rotate-90">
           <circle
-            cx="36"
-            cy="36"
-            r={r}
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={RADIUS}
             fill="none"
             stroke="currentColor"
-            strokeWidth="6"
-            className="text-white/30 dark:text-white/15"
+            strokeWidth={STROKE}
+            className="text-border"
           />
           <motion.circle
-            cx="36"
-            cy="36"
-            r={r}
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={RADIUS}
             fill="none"
             stroke="currentColor"
-            strokeWidth="6"
+            strokeWidth={STROKE}
             strokeLinecap="round"
-            className="text-emerald-400"
-            strokeDasharray={c}
-            initial={{ strokeDashoffset: c }}
+            className={tone}
+            strokeDasharray={CIRCUMFERENCE}
+            initial={{ strokeDashoffset: CIRCUMFERENCE }}
             animate={{ strokeDashoffset: offset }}
             transition={{ type: "spring", stiffness: 120, damping: 18 }}
           />
         </svg>
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-emerald-500">
-          <SyncMascot className="h-14 w-14 opacity-90" />
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <span className="font-display text-3xl font-semibold tracking-tighter">
+            {p}
+            <span className="text-ink-muted text-xl">%</span>
+          </span>
         </div>
       </div>
-      <span className="font-display text-lg font-semibold text-emerald-500">{p}%</span>
+      <span className={cn("text-xs font-medium tracking-tight", tone)}>
+        {label}
+      </span>
     </div>
   );
 }
