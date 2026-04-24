@@ -2,7 +2,8 @@
 
 import { ArrowRight, Wifi, WifiOff } from "lucide-react";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { getStoredDisplayName, setStoredDisplayName } from "@/lib/display-name";
 import { Button } from "@/components/ui/button";
 import { FieldLabel, Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -17,10 +18,17 @@ interface Props {
 export function GuestEntry({ onJoin, wsConnected, roomOpen }: Props) {
   const [name, setName] = useState("");
 
+  useEffect(() => {
+    setName(getStoredDisplayName());
+  }, []);
+
   function submit(e: FormEvent) {
     e.preventDefault();
     const n = name.trim();
-    if (n) onJoin(n);
+    if (n) {
+      setStoredDisplayName(n);
+      onJoin(n);
+    }
   }
 
   const waitingForHost = wsConnected && roomOpen === false;

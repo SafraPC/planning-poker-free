@@ -3,8 +3,9 @@
 ## Produto
 - Salas por **token** no PartyKit: o `room` do WebSocket é o token (ver `src/lib/party.ts` `getRoomIdForToken`). Máx. 8 pessoas. Deck: XS, S, M, L, XL, ?, COFFEE (café não entra nas estatísticas de acordo/soma).
 - Convite: **`/sala?token=<token>`** (query `name=` opcional para reconexão). Anfitrião: `/anfitriao` gera token e redireciona com `host=1&room=&name=&token=`.
-- Cliente: **`pp_user_id`** no `localStorage` (`src/lib/user-id.ts`, formato `timestamp` + 8 chars alfanum). **`pp_room_sessions`**: lista de sessões com `token`, `roomName`, `displayName`, `role`, `lastConnectedAt`; reconexão automática em `/sala` sem query só se **< 10 min** (`ROOM_SESSION_TTL_MS` em `src/lib/room-sessions.ts`).
-- Fases: `awaiting_host` → `lobby` → `draft` → `voting` → `revealing` (3s) → `revealed`. Estado no PartyKit em memória (hibernate desligado).
+- Cliente: **`pp_user_id`** no `localStorage` (`src/lib/user-id.ts`, `PERSISTENT_USER_ID_STORAGE_KEY`, formato `timestamp` + 8 chars alfanum). **`pp_display_name`**: último "como quer ser chamado" (`src/lib/display-name.ts`). **`pp_room_sessions`**: lista de sessões; reconexão em `/sala` sem query se **< 10 min** (`ROOM_SESSION_TTL_MS` em `src/lib/room-sessions.ts`). Ao **fechar a sala** (`HOST_CLOSE_ROOM` no host), todos recebem `phase: "room_closed"`; o cliente chama `clearLocalStoragePreservingUserIdAndDisplayName()` (mantém `pp_user_id` e `pp_display_name`) e redireciona ao `/`.
+- Verso do card na mesa: iniciais por nome (`src/lib/display-initials.ts` `displayNameToInitials` — 2+ palavras: 1.ª+1.ª da última; 1 palavra: 2 primeiras letras; `@` removido no token).
+- Fases: `awaiting_host` → `lobby` → `draft` → `voting` → `revealing` (3s) → `revealed`. `room_closed` (kick ou **queda do anfitrião** = mesmo fluxo de fechar sala); PartyKit em memória (hibernate desligado).
 
 ## Stack
 - **Next.js 15** (`src/app`): UI, tema claro/escuro (`next-themes`).

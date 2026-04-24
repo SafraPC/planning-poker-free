@@ -1,6 +1,10 @@
 import { MAX_PARTICIPANTS, REVEAL_DELAY_MS } from "../shared/types";
 import type { ClientMessage } from "../shared/wire";
-import type { EngineState, MemberInternal } from "./engine-state";
+import {
+  closeEntireRoom,
+  type EngineState,
+  type MemberInternal,
+} from "./engine-state";
 
 function memberCount(members: Record<string, MemberInternal>) {
   return Object.keys(members).length;
@@ -161,6 +165,13 @@ export function reduceMessage(
     for (const id of Object.keys(state.members)) {
       state.members[id].vote = null;
     }
+    return { ok: true };
+  }
+
+  if (msg.type === "HOST_CLOSE_ROOM") {
+    const h = hostOnly();
+    if (!h.ok) return h;
+    closeEntireRoom(state);
     return { ok: true };
   }
 

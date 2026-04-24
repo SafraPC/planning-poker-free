@@ -185,6 +185,17 @@ export function RoomView({
         reconnecting={reconnecting}
         isHost={snapshot.isHost}
         inviteUrl={inviteUrl}
+        onCloseRoom={
+          snapshot.isHost
+            ? () => {
+                if (typeof window !== "undefined" && !window.confirm(
+                  "Encerrar a sala para todos? Ninguém poderá continuar por este link.",
+                ))
+                  return;
+                send({ type: "HOST_CLOSE_ROOM" });
+              }
+            : undefined
+        }
       />
       <AnimatePresence>
         {lastError ? (

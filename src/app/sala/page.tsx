@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import type { ClientMessage } from "@shared/wire";
 import { EnterSalaInviteForm } from "@/components/enter-sala-invite-form";
 import { RoomView } from "@/components/room-view";
@@ -16,6 +16,10 @@ import {
   upsertRoomSession,
 } from "@/lib/room-sessions";
 import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  clearLocalStoragePreservingUserIdAndDisplayName,
+  setStoredDisplayName,
+} from "@/lib/display-name";
 
 function SalaContent() {
   const router = useRouter();
@@ -37,8 +41,13 @@ function SalaContent() {
     Boolean(roomToken) &&
     (intentHost ? Boolean(hostName && hostRoom) : true);
 
+  const onRoomClosed = useCallback(() => {
+    clearLocalStoragePreservingUserIdAndDisplayName();
+    router.replace("/");
+  }, [router]);
+
   const { snapshot, send, connected, reconnecting, lastError, setLastError } =
-    usePlanningSocket(socketEnabled, roomToken || null);
+    usePlanningSocket(socketEnabled, roomToken || null, onRoomClosed);
 
   const [inviteOrigin, setInviteOrigin] = useState("");
 
@@ -85,6 +94,7 @@ function SalaContent() {
     if (!roomToken || !snapshot) return;
     const me = snapshot.members.find((m) => m.id === snapshot.selfId);
     if (!me) return;
+    setStoredDisplayName(me.name);
     upsertRoomSession({
       token: roomToken,
       roomName: snapshot.roomName,
@@ -215,6 +225,15 @@ function SalaContent() {
       <WaitCard
         title="Conectando"
         subtitle="Abrindo o canal com o PartyKit e carregando a mesa."
+      />
+    );
+  }
+
+  if (snapshot.phase === "room_closed") {
+    return (
+      <WaitCard
+        title="Sala encerrada"
+        subtitle="O anfitrião encerrou. Voltando ao início…"
       />
     );
   }

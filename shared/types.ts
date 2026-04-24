@@ -4,7 +4,8 @@ export type Phase =
   | "draft"
   | "voting"
   | "revealing"
-  | "revealed";
+  | "revealed"
+  | "room_closed";
 
 export type VoteValue = "XS" | "S" | "M" | "L" | "XL" | "UNKNOWN" | "COFFEE";
 

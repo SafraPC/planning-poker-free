@@ -3,10 +3,11 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldLabel, Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { getStoredDisplayName, setStoredDisplayName } from "@/lib/display-name";
 import { generateRoomToken } from "@/lib/room-token";
 import { upsertRoomSession } from "@/lib/room-sessions";
 
@@ -15,11 +16,16 @@ export default function AnfitriaoPage() {
   const [room, setRoom] = useState("");
   const [name, setName] = useState("");
 
+  useEffect(() => {
+    setName(getStoredDisplayName());
+  }, []);
+
   function submit(e: FormEvent) {
     e.preventDefault();
     const r = room.trim();
     const n = name.trim();
     if (!r || !n) return;
+    setStoredDisplayName(n);
     const token = generateRoomToken();
     upsertRoomSession({
       token,

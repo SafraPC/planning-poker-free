@@ -51,6 +51,17 @@ export default class PlanningPokerServer implements Party.Server {
 
   async onClose(connection: Party.Connection) {
     applyDisconnect(this.engine, connection.id);
+    if (this.engine.phase === "room_closed") {
+      this.clearRevealTimer();
+      this.pushAll();
+      this.engine = createInitialEngine();
+      for (const c of this.room.getConnections()) {
+        if (c.id !== connection.id) {
+          c.close(1000, "room_closed");
+        }
+      }
+      return;
+    }
     if (this.engine.phase !== "revealing") {
       this.clearRevealTimer();
     }
@@ -102,6 +113,15 @@ export default class PlanningPokerServer implements Party.Server {
       safe.data.type === "HOST_START_VOTING"
     ) {
       this.clearRevealTimer();
+    }
+    if (safe.data.type === "HOST_CLOSE_ROOM") {
+      this.clearRevealTimer();
+      this.pushAll();
+      this.engine = createInitialEngine();
+      for (const connection of this.room.getConnections()) {
+        connection.close(1000, "room_closed");
+      }
+      return;
     }
     this.pushAll();
   }

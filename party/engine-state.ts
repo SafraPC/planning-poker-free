@@ -29,33 +29,24 @@ export function createInitialEngine(): EngineState {
   };
 }
 
-function pickNextHost(
-  members: Record<string, MemberInternal>,
-): string | null {
-  let best: { id: string; order: number } | null = null;
-  for (const [id, m] of Object.entries(members)) {
-    if (!best || m.order < best.order) best = { id, order: m.order };
-  }
-  return best?.id ?? null;
+export function closeEntireRoom(state: EngineState): void {
+  state.phase = "room_closed";
+  state.roomName = "";
+  state.roomOpen = false;
+  state.hostId = null;
+  state.members = {};
+  state.revealEndsAt = null;
+  state.orderSeed = 0;
 }
 
 export function applyDisconnect(
   state: EngineState,
   connectionId: string,
 ): void {
+  const wasHost = state.hostId === connectionId;
   delete state.members[connectionId];
-  if (state.hostId === connectionId) {
-    const next = pickNextHost(state.members);
-    state.hostId = next;
-    if (next) {
-      state.members[next].role = "host";
-    } else {
-      state.phase = "awaiting_host";
-      state.roomName = "";
-      state.roomOpen = false;
-      state.revealEndsAt = null;
-      Object.keys(state.members).forEach((k) => delete state.members[k]);
-    }
+  if (wasHost) {
+    closeEntireRoom(state);
   }
 }
 

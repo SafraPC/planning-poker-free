@@ -27,6 +27,9 @@ export const ClientMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("HOST_NEW_ROUND"),
   }),
   z.object({
+    type: z.literal("HOST_CLOSE_ROOM"),
+  }),
+  z.object({
     type: z.literal("PING"),
   }),
 ]);

@@ -198,19 +198,20 @@ describe("reduceMessage", () => {
       expect(state.phase).toBe("lobby");
     });
 
-    it("promove próximo membro a host quando host sai", () => {
+    it("sala fecha quando o anfitrião sai, com convidados", () => {
       bootHost(state);
       joinGuest(state, G1, "Bia");
       joinGuest(state, G2, "Caio");
       applyDisconnect(state, HOST);
-      expect(state.hostId).toBe(G1);
-      expect(state.members[G1].role).toBe("host");
+      expect(state.phase).toBe("room_closed");
+      expect(state.hostId).toBeNull();
+      expect(Object.keys(state.members).length).toBe(0);
     });
 
-    it("reseta sala quando último membro sai", () => {
+    it("sala fecha quando o anfitrião sai sozinho", () => {
       bootHost(state);
       applyDisconnect(state, HOST);
-      expect(state.phase).toBe("awaiting_host");
+      expect(state.phase).toBe("room_closed");
       expect(state.roomOpen).toBe(false);
       expect(Object.keys(state.members).length).toBe(0);
     });
@@ -219,5 +220,24 @@ describe("reduceMessage", () => {
   it("PING é no-op idempotente", () => {
     const r = send(state, "x", { type: "PING" });
     expect(r.ok).toBe(true);
+  });
+
+  it("HOST_CLOSE_ROOM encerra e limpa", () => {
+    bootHost(state);
+    joinGuest(state, G1, "Bia");
+    const r = send(state, HOST, { type: "HOST_CLOSE_ROOM" });
+    expect(r.ok).toBe(true);
+    expect(state.phase).toBe("room_closed");
+    expect(state.roomOpen).toBe(false);
+    expect(state.hostId).toBeNull();
+    expect(Object.keys(state.members).length).toBe(0);
+  });
+
+  it("HOST_CLOSE_ROOM rejeita convidado", () => {
+    bootHost(state);
+    joinGuest(state, G1, "Bia");
+    const r = send(state, G1, { type: "HOST_CLOSE_ROOM" });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.code).toBe("HOST_ONLY");
   });
 });

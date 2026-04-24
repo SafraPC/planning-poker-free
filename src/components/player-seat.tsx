@@ -4,6 +4,7 @@ import { Crown } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Phase, RoomMember, VoteValue } from "@shared/types";
 import { cn } from "@/lib/cn";
+import { displayNameToInitials } from "@/lib/display-initials";
 import { VoteCardFace } from "@/components/vote-token";
 
 interface Props {
@@ -53,7 +54,13 @@ export function PlayerSeat({ member, self, phase, modeValue }: Props) {
             <Crown className="h-2.5 w-2.5" strokeWidth={2.5} />
           </span>
         ) : null}
-        <VoteCardFace value={value} faceUp={faceUp} glow={isMajority} pending={member.hasVoted && !faceUp} />
+        <VoteCardFace
+          value={value}
+          faceUp={faceUp}
+          glow={isMajority}
+          pending={member.hasVoted && !faceUp}
+          backInitials={displayNameToInitials(member.name)}
+        />
       </div>
       <div className="text-center">
         <p

@@ -48,9 +48,16 @@ interface CardFaceProps {
   faceUp: boolean;
   glow?: boolean;
   pending?: boolean;
+  backInitials: string;
 }
 
-export function VoteCardFace({ value, faceUp, glow, pending }: CardFaceProps) {
+export function VoteCardFace({
+  value,
+  faceUp,
+  glow,
+  pending,
+  backInitials,
+}: CardFaceProps) {
   return (
     <div
       className="relative h-28 w-20 sm:h-32 sm:w-24"
@@ -92,18 +99,21 @@ export function VoteCardFace({ value, faceUp, glow, pending }: CardFaceProps) {
             transform: "rotateY(180deg)",
           }}
         >
-          <CardBackPattern />
+          <CardBackPattern initials={backInitials} />
         </div>
       </motion.div>
     </div>
   );
 }
 
-function CardBackPattern() {
+function CardBackPattern({ initials }: { initials: string }) {
   return (
     <div className="flex h-12 w-9 flex-col items-center justify-center gap-1 rounded-md border border-surface/15">
-      <span className="font-display text-[10px] font-semibold uppercase tracking-[0.3em] text-surface/70">
-        pp
+      <span
+        className="font-display text-[10px] font-semibold uppercase tracking-tight text-surface/70"
+        aria-hidden
+      >
+        {initials}
       </span>
       <span className="h-px w-4 bg-surface/30" />
     </div>

@@ -1,4 +1,4 @@
-const STORAGE_KEY = "pp_user_id";
+export const PERSISTENT_USER_ID_STORAGE_KEY = "pp_user_id";
 const SUFFIX_LEN = 8;
 const ALPHANUM =
   "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -19,11 +19,11 @@ function isValidUserId(v: string): boolean {
 
 export function getOrCreatePersistentUserId(): string {
   if (typeof window === "undefined") return "";
-  const existing = localStorage.getItem(STORAGE_KEY);
+  const existing = localStorage.getItem(PERSISTENT_USER_ID_STORAGE_KEY);
   if (existing && isValidUserId(existing)) {
     return existing;
   }
   const id = `${Date.now()}-${randomSuffix()}`;
-  localStorage.setItem(STORAGE_KEY, id);
+  localStorage.setItem(PERSISTENT_USER_ID_STORAGE_KEY, id);
   return id;
 }

@@ -19,7 +19,11 @@ import { getOrCreatePersistentUserId } from "@/lib/user-id";
 
 const PING_PAYLOAD = JSON.stringify({ type: "PING" as const });
 
-export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
+export function usePlanningSocket(
+  enabled: boolean,
+  roomToken: string | null,
+  onRoomClosed?: () => void,
+) {
   const [snapshot, setSnapshot] = useState<RoomSnapshot | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
@@ -27,6 +31,12 @@ export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
   const sockRef = useRef<PartySocket | null>(null);
   const tokenRef = useRef<string | null>(null);
   const hadSuccessfulOpenRef = useRef(false);
+  const onRoomClosedRef = useRef(onRoomClosed);
+  const roomCloseHandledRef = useRef(false);
+
+  useEffect(() => {
+    onRoomClosedRef.current = onRoomClosed;
+  }, [onRoomClosed]);
 
   const endpoint = useMemo(() => {
     const t = roomToken?.trim() ?? "";
@@ -48,6 +58,13 @@ export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
     if (!enabled || !roomToken?.trim()) return;
     const id = getOrCreatePersistentUserId();
     if (!id) return;
+    roomCloseHandledRef.current = false;
+
+    const tryNotifyRoomClosed = () => {
+      if (roomCloseHandledRef.current) return;
+      roomCloseHandledRef.current = true;
+      onRoomClosedRef.current?.();
+    };
 
     const socket = new PartySocket({
       host: endpoint.host,
@@ -64,8 +81,18 @@ export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
       setLastError(null);
       hadSuccessfulOpenRef.current = true;
     };
-    const onClose = () => {
+    const onClose = (ev: Event) => {
       setConnected(false);
+      if (
+        ev instanceof CloseEvent &&
+        ev.code === 1000 &&
+        ev.reason === "room_closed"
+      ) {
+        setReconnecting(false);
+        hadSuccessfulOpenRef.current = false;
+        tryNotifyRoomClosed();
+        return;
+      }
       if (hadSuccessfulOpenRef.current) {
         setReconnecting(true);
       }
@@ -79,9 +106,13 @@ export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
         };
         if (data.type === "STATE" && isStatePayload(data.payload)) {
           setSnapshot(data.payload);
-          const tok = tokenRef.current;
-          if (tok) {
-            touchRoomSession(tok);
+          if (data.payload.phase === "room_closed") {
+            tryNotifyRoomClosed();
+          } else {
+            const tok = tokenRef.current;
+            if (tok) {
+              touchRoomSession(tok);
+            }
           }
         }
         if (data.type === "ERROR" && data.message) {
