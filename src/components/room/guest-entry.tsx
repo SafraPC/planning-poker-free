@@ -1,17 +1,20 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Wifi, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldLabel, Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   onJoin: (name: string) => void;
+  wsConnected: boolean;
+  roomOpen: boolean | null;
 }
 
-export function GuestEntry({ onJoin }: Props) {
+export function GuestEntry({ onJoin, wsConnected, roomOpen }: Props) {
   const [name, setName] = useState("");
 
   function submit(e: FormEvent) {
@@ -19,6 +22,9 @@ export function GuestEntry({ onJoin }: Props) {
     const n = name.trim();
     if (n) onJoin(n);
   }
+
+  const waitingForHost = wsConnected && roomOpen === false;
+  const canTypeName = wsConnected && roomOpen !== false;
 
   return (
     <div className="relative isolate min-h-dvh">
@@ -40,26 +46,61 @@ export function GuestEntry({ onJoin }: Props) {
             Entrar na sala
           </h1>
           <p className="text-base text-ink-muted">
-            Uma única sala compartilhada — use o mesmo link que o anfitrião
-            enviou.
+            Já estamos conectando ao PartyKit. Quando a sala estiver aberta, diga
+            como quer ser chamado.
           </p>
+          <div className="pt-1">
+            <Badge tone={wsConnected ? "success" : "neutral"}>
+              {wsConnected ? (
+                <>
+                  <Wifi className="h-3 w-3" aria-hidden />
+                  Canal em tempo real
+                </>
+              ) : (
+                <>
+                  <WifiOff className="h-3 w-3" aria-hidden />
+                  Conectando…
+                </>
+              )}
+            </Badge>
+          </div>
         </div>
-        <form onSubmit={submit} className="surface-card space-y-5 p-6 shadow-card">
+        {waitingForHost ? (
+          <div className="surface-card p-6 text-center shadow-card">
+            <p className="font-display text-lg font-semibold text-ink">
+              Ainda sem anfitrião ativo
+            </p>
+            <p className="mt-2 text-sm text-ink-muted">
+              Quando a pessoa que criou a sala abrir, este passo destrava. Peça
+              o link de novo se passou o tempo.
+            </p>
+          </div>
+        ) : null}
+        <form
+          onSubmit={submit}
+          className="surface-card space-y-5 p-6 shadow-card"
+        >
           <div className="space-y-1.5">
             <FieldLabel htmlFor="guest-name">Como quer ser chamado</FieldLabel>
             <Input
               id="guest-name"
               autoFocus
               value={name}
+              disabled={!canTypeName}
               onChange={(e) => setName(e.target.value)}
               placeholder="Ex.: Bia, João, @nick"
             />
+            {!wsConnected ? (
+              <p className="text-xs text-ink-muted">
+                Abrindo o canal com o PartyKit…
+              </p>
+            ) : null}
           </div>
           <Button
             type="submit"
             size="lg"
             className="w-full"
-            disabled={!name.trim()}
+            disabled={!name.trim() || !canTypeName}
           >
             Conectar
             <ArrowRight className="h-4 w-4" />

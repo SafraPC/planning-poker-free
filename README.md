@@ -38,7 +38,7 @@ Fluxo:
 1. **Anfitrião**: `/anfitriao` → gera `token` → `/sala?host=1&room=…&name=…&token=…`.
 2. **Convidados**: abrem o link com `token` (ex. `/sala?token=…`) → informam o nome (ou vêm de sessão com `name=` se reconexão) → entram quando a sala já foi aberta.
 
-Copie a URL completa a partir do **lobby** (inclui o query `token`).
+Copie a URL completa a partir do **lobby** (inclui o query `token`). Na home e em `/sala` sem token, use o campo **Cole o link de convite** para colar a URL sem errar o `token`.
 
 ## Testes
 
@@ -67,6 +67,8 @@ Veja `.env.example` para a lista completa.
 | `src/components/room/*.tsx` | Painéis por fase (lobby, draft, voting, revealed, header, banners) |
 | `src/lib/constants.ts` | Constantes (feedback de cópia, etc.) |
 | `src/lib/user-id.ts` / `room-sessions.ts` / `room-token.ts` / `invite-url.ts` | Id de cliente, sessões 10 min, geração de token, URL de convite |
+| `src/lib/parse-sala-invite.ts` | Extrai `token` (e `host`/`room`/`name`) de URLs ou trechos colados |
+| `src/components/enter-sala-invite-form.tsx` | Formulário de colar link → `router.push(/sala?…)` |
 | `src/lib/party-socket-options.ts` | Atrasos/timeout de reconexão e intervalo de PING para o `PartySocket` |
 
 ## Licença

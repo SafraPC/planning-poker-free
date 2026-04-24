@@ -4,7 +4,11 @@ import path from "node:path";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["shared/**/*.test.ts", "party/**/*.test.ts"],
+    include: [
+      "shared/**/*.test.ts",
+      "party/**/*.test.ts",
+      "src/lib/**/*.test.ts",
+    ],
   },
   resolve: {
     alias: {

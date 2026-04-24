@@ -1,5 +1,6 @@
 import { ArrowRight, Coffee, Radio, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { EnterSalaInviteForm } from "@/components/enter-sala-invite-form";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -68,10 +69,29 @@ export default function HomePage() {
             <Link
               href="/sala"
               className="inline-flex h-12 items-center gap-2 rounded-lg border border-border bg-surface-elevated px-6 text-sm font-medium tracking-tight text-ink transition-colors hover:border-border-strong hover:bg-surface-muted"
-              title="Use o link com token que o anfitrião enviou; sem token, abrimos sessão recente se ainda válida"
             >
-              Já tenho o link
+              Abrir /sala
             </Link>
+          </div>
+        </section>
+
+        <section className="w-full max-w-lg">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
+            Já tenho o link
+          </p>
+          <h2 className="mt-2 font-display text-xl font-semibold tracking-tight">
+            Cole a URL de convite
+          </h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            O WebSocket liga-se ao PartyKit; colar o link acerta o token. Também
+            dá para abrir
+            <Link href="/sala" className="mx-1 text-ink underline">
+              /sala
+            </Link>
+            para retomar sessão se ainda for válida.
+          </p>
+          <div className="mt-4 surface-card p-5 shadow-card">
+            <EnterSalaInviteForm variant="default" />
           </div>
         </section>
 

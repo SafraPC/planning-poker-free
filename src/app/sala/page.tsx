@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import type { ClientMessage } from "@shared/wire";
+import { EnterSalaInviteForm } from "@/components/enter-sala-invite-form";
 import { RoomView } from "@/components/room-view";
 import { GuestEntry } from "@/components/room/guest-entry";
 import { WaitCard } from "@/components/room/wait-card";
@@ -14,6 +15,7 @@ import {
   pruneExpiredSessions,
   upsertRoomSession,
 } from "@/lib/room-sessions";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 function SalaContent() {
   const router = useRouter();
@@ -24,7 +26,7 @@ function SalaContent() {
   const hostName = params.get("name")?.trim() ?? "";
   const nameParam = params.get("name")?.trim() ?? "";
 
-  const [entryReady, setEntryReady] = useState(false);
+  const [entryReady, setEntryReady] = useState(!!roomToken);
   const [guestName, setGuestName] = useState(nameParam);
   const [guestReady, setGuestReady] = useState(Boolean(nameParam));
 
@@ -33,9 +35,7 @@ function SalaContent() {
 
   const socketEnabled =
     Boolean(roomToken) &&
-    (intentHost
-      ? Boolean(hostName && hostRoom)
-      : guestReady && Boolean(displayName));
+    (intentHost ? Boolean(hostName && hostRoom) : true);
 
   const { snapshot, send, connected, reconnecting, lastError, setLastError } =
     usePlanningSocket(socketEnabled, roomToken || null);
@@ -45,12 +45,17 @@ function SalaContent() {
   const boot = useRef(false);
 
   useEffect(() => {
+    if (roomToken) {
+      setEntryReady(true);
+    }
+  }, [roomToken]);
+
+  useEffect(() => {
     setInviteOrigin(window.location.origin);
   }, []);
 
   useEffect(() => {
     if (roomToken) {
-      setEntryReady(true);
       return;
     }
     pruneExpiredSessions();
@@ -108,6 +113,7 @@ function SalaContent() {
       boot.current = true;
       return;
     }
+    if (!guestReady) return;
     if (!snapshot?.roomOpen) return;
     if (boot.current) return;
     send({
@@ -118,6 +124,7 @@ function SalaContent() {
   }, [
     connected,
     displayName,
+    guestReady,
     intentHost,
     roomTitle,
     send,
@@ -134,7 +141,7 @@ function SalaContent() {
     return (
       <WaitCard
         title="Carregando"
-        subtitle="Verificando sessão salva neste aparelho..."
+        subtitle="Conferindo se há uma sessão salva neste aparelho…"
       />
     );
   }
@@ -143,39 +150,48 @@ function SalaContent() {
     return (
       <WaitCard
         title="Redirecionando"
-        subtitle="Voltando para o cadastro do anfitrião..."
+        subtitle="Voltando para o cadastro do anfitrião…"
       />
     );
   }
 
   if (!roomToken) {
     return (
-      <div className="relative isolate mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 px-6">
-        <div className="text-center">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
-            Sala
-          </p>
-          <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight">
-            Link necessário
-          </h1>
-          <p className="mt-2 text-sm text-ink-muted">
-            Abra a sala por um convite com token ou crie uma como anfitrião.
-            Sessões recentes (até 10 min) reconectam sozinhas.
-          </p>
-        </div>
-        <div className="flex flex-col gap-2">
-          <Link
-            href="/anfitriao"
-            className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-ink text-sm font-medium text-surface shadow-soft"
-          >
-            Criar sala
-          </Link>
-          <Link
-            href="/"
-            className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-border bg-surface-elevated text-sm font-medium text-ink"
-          >
-            Início
-          </Link>
+      <div className="relative isolate min-h-dvh">
+        <div className="pointer-events-none absolute inset-0 grid-bg opacity-50" />
+        <div className="relative mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-8 px-6 py-12">
+          <div className="flex items-center justify-end">
+            <ThemeToggle />
+          </div>
+          <div className="text-center">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-ink-muted">
+              Sala
+            </p>
+            <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight">
+              Link do convite
+            </h1>
+            <p className="mt-2 text-sm text-ink-muted">
+              Sem token na URL, cole o link completo. Com sessão recente, você
+              entra sozinho se ainda for válida.
+            </p>
+          </div>
+          <div className="surface-card p-6 shadow-card">
+            <EnterSalaInviteForm />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Link
+              href="/anfitriao"
+              className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-ink text-sm font-medium text-surface"
+            >
+              Criar sala
+            </Link>
+            <Link
+              href="/"
+              className="inline-flex h-9 w-full items-center justify-center rounded-lg border border-border text-sm text-ink"
+            >
+              Início
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -188,6 +204,8 @@ function SalaContent() {
           setGuestName(n);
           setGuestReady(true);
         }}
+        wsConnected={connected}
+        roomOpen={snapshot?.roomOpen ?? null}
       />
     );
   }
@@ -196,7 +214,7 @@ function SalaContent() {
     return (
       <WaitCard
         title="Conectando"
-        subtitle="WebSocket e sala por token no PartyKit."
+        subtitle="Abrindo o canal com o PartyKit e carregando a mesa."
       />
     );
   }
@@ -220,8 +238,8 @@ export default function SalaPage() {
     <Suspense
       fallback={
         <WaitCard
-          title="Carregando"
-          subtitle="Preparando a mesa de planning poker..."
+          title="Abrindo sala"
+          subtitle="Lendo o endereço e preparando a mesa…"
         />
       }
     >
