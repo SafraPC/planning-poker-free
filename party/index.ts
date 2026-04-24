@@ -1,4 +1,5 @@
 import type * as Party from "partykit/server";
+import { REVEAL_DELAY_MS } from "../shared/types";
 import { ClientMessageSchema } from "../shared/wire";
 import {
   applyDisconnect,
@@ -29,7 +30,7 @@ export default class PlanningPokerServer implements Party.Server {
       sealReveal(this.engine);
       this.revealTimer = null;
       this.pushAll();
-    }, 3000);
+    }, REVEAL_DELAY_MS);
   }
 
   private pushAll() {
@@ -49,8 +50,10 @@ export default class PlanningPokerServer implements Party.Server {
   }
 
   async onClose(connection: Party.Connection) {
-    this.clearRevealTimer();
     applyDisconnect(this.engine, connection.id);
+    if (this.engine.phase !== "revealing") {
+      this.clearRevealTimer();
+    }
     this.pushAll();
   }
 

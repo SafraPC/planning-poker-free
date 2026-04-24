@@ -32,7 +32,7 @@ export default function HomePage() {
             </h1>
             <p className="text-ink-muted max-w-2xl text-lg">
               Uma sala única pensada para squads que precisam estimar rápido: cartas XS–XL, pausa com café
-              fora das estatísticas e integração opcional com Jira para trazer contexto da issue.
+              fora das estatísticas, contagem dramática e confetes na unanimidade.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link

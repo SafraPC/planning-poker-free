@@ -12,7 +12,6 @@ export type MemberRole = "host" | "guest";
 
 export interface TaskPayload {
   title: string;
-  jiraKey?: string;
   description?: string;
 }
 
@@ -51,6 +50,8 @@ export interface AgreementResult {
 export const MAX_PARTICIPANTS = 8;
 
 export const ROOM_PARTY_ID = "global-room";
+
+export const REVEAL_DELAY_MS = 3000;
 
 export const VOTE_SEQUENCE: VoteValue[] = [
   "XS",

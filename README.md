@@ -16,8 +16,8 @@ Aplicação web em português para estimativas em **camiseta (tempo)** com **uma
 
 ## Arquitetura
 
-- **Next.js 15** na Vercel: páginas, tema, API opcional do Jira (`/api/jira`).
-- **PartyKit**: servidor em tempo real **sem banco** — estado só na party (memória), adequado a estrela de sucesso sem persistência durável.
+- **Next.js 15** na Vercel: UI, tema, rotas estáticas.
+- **PartyKit**: servidor em tempo real **sem banco** — estado só em memória da party, alinhado ao requisito de "sem persistência durável".
 - **Front** mantém o estado recebido após cada `STATE`; nova rodada zera votos no servidor e reabre o rascunho.
 
 Por que PartyKit e não só Vercel? Funções serverless da Vercel não mantêm WebSocket long-lived; PartyKit roda na edge com o modelo certo para salas colaborativas.
@@ -38,23 +38,13 @@ Fluxo:
 
 Copie o link da sala (`/sala`) a partir do painel do anfitrião no **lobby**.
 
-### Integração Jira (opcional)
-
-Crie um token de API no Jira Cloud e configure no `.env.local`:
-
-- `JIRA_BASE_URL` (ex.: `https://empresa.atlassian.net`)
-- `JIRA_EMAIL`
-- `JIRA_API_TOKEN`
-
-Sem essas variáveis, o botão “Buscar” apenas informa que a integração não está configurada.
-
 ## Testes
 
 ```bash
 npm test
 ```
 
-Cobertura voltada a **estatísticas e exclusão do café** (`shared/vote-stats.test.ts`).
+Cobertura focada nos pontos de risco: estatísticas e exclusão do café (`shared/vote-stats.test.ts`), máquina de estados do servidor (`party/reduce-message.test.ts`) e visibilidade de votos por fase (`party/snapshot.test.ts`).
 
 ## Deploy
 
@@ -68,10 +58,13 @@ Veja `.env.example` para a lista completa.
 | Caminho | Conteúdo |
 |---------|-----------|
 | `party/index.ts` | Servidor PartyKit (mensagens + broadcast por conexão) |
-| `party/engine-state.ts` / `reduce-message.ts` / `snapshot.ts` | Estado, regras e visibilidade das cartas |
-| `shared/*` | Tipos, métricas de votação, contrato de mensagens |
+| `party/engine-state.ts` / `reduce-message.ts` / `snapshot.ts` | Máquina de estados, regras e visibilidade dos votos |
+| `shared/*` | Tipos, contrato Zod e métricas de votação compartilhados entre cliente e servidor |
 | `src/app/sala/page.tsx` | Conexão + bootstrap host/convidado |
-| `src/components/room-view.tsx` | Mesa, rascunho, votação, revelação, resultados |
+| `src/components/room-view.tsx` | Orquestrador: cabeçalho, mesa, fase atual, resultados |
+| `src/components/room/*.tsx` | Painéis por fase (lobby, draft, voting, revealed, header, banners) |
+| `src/hooks/use-task-draft.ts` | Estado local do rascunho da tarefa com sincronia debounced |
+| `src/lib/constants.ts` | Constantes de tempo (debounce, feedback de cópia) |
 
 ## Licença
 

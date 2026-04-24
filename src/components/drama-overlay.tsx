@@ -22,6 +22,9 @@ export function DramaOverlay({ endsAt }: { endsAt: number | null }) {
     <AnimatePresence>
       {endsAt ? (
         <motion.div
+          role="status"
+          aria-live="assertive"
+          aria-label={`Revelando em ${left} segundo${left === 1 ? "" : "s"}`}
           className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-3xl bg-surface/70 backdrop-blur-md dark:bg-surface/80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

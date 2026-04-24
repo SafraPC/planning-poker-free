@@ -64,4 +64,54 @@ describe("unanimidade", () => {
   it("celebrar todos iguais sem café", () => {
     expect(shouldCelebrateUnanimity(["L", "L", "COFFEE"])).toBe(true);
   });
+
+  it("não celebra quando ninguém vota fora café", () => {
+    expect(shouldCelebrateUnanimity(["COFFEE", "COFFEE"])).toBe(false);
+  });
+
+  it("não celebra com divergência", () => {
+    expect(shouldCelebrateUnanimity(["M", "L", "L"])).toBe(false);
+  });
+});
+
+describe("casos extremos", () => {
+  it("distribuição completa cobre todo o deck votável", () => {
+    const rows = computeDistribution([
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "UNKNOWN",
+      "COFFEE",
+    ]);
+    const labels = rows.map((r) => r.value);
+    expect(labels).toContain("XS");
+    expect(labels).toContain("UNKNOWN");
+    expect(labels).not.toContain("COFFEE");
+    expect(rows.every((r) => r.count === 1)).toBe(true);
+  });
+
+  it("empate na moda — primeiro do mapa vence (determinístico por inserção)", () => {
+    const r = computeAgreement(["M", "S", "M", "S"]);
+    expect(r.percent).toBe(50);
+    expect(r.votingCount).toBe(4);
+    expect(["M", "S"]).toContain(r.mode);
+  });
+
+  it("UNKNOWN é tratado como voto válido", () => {
+    const r = computeAgreement(["UNKNOWN", "UNKNOWN", "M"]);
+    expect(r.mode).toBe("UNKNOWN");
+    expect(r.votingCount).toBe(3);
+  });
+
+  it("rótulo do UNKNOWN aparece como ?", () => {
+    const rows = computeDistribution(["UNKNOWN", "UNKNOWN"]);
+    expect(rows[0]?.label).toBe("?");
+  });
+
+  it("share normaliza para 1 quando todos iguais", () => {
+    const rows = computeDistribution(["L", "L", "L"]);
+    expect(rows[0]?.share).toBe(1);
+  });
 });

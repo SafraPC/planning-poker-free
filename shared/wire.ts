@@ -17,7 +17,6 @@ export const ClientMessageSchema = z.discriminatedUnion("type", [
     type: z.literal("SET_TASK"),
     task: z.object({
       title: z.string().min(0).max(200),
-      jiraKey: z.string().max(32).optional(),
       description: z.string().max(4000).optional(),
     }),
   }),

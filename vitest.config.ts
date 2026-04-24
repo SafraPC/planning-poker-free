@@ -4,11 +4,12 @@ import path from "node:path";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["shared/**/*.test.ts"],
+    include: ["shared/**/*.test.ts", "party/**/*.test.ts"],
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@shared": path.resolve(__dirname, "./shared"),
     },
   },
 });

@@ -1,4 +1,4 @@
-import { MAX_PARTICIPANTS } from "../shared/types";
+import { MAX_PARTICIPANTS, REVEAL_DELAY_MS } from "../shared/types";
 import type { ClientMessage } from "../shared/wire";
 import type { EngineState, MemberInternal } from "./engine-state";
 
@@ -113,7 +113,6 @@ export function reduceMessage(
     }
     state.task = {
       title: msg.task.title.trim(),
-      jiraKey: msg.task.jiraKey?.trim() || undefined,
       description: msg.task.description?.trim() || undefined,
     };
     return { ok: true };
@@ -161,7 +160,7 @@ export function reduceMessage(
       };
     }
     state.phase = "revealing";
-    state.revealEndsAt = Date.now() + 3000;
+    state.revealEndsAt = Date.now() + REVEAL_DELAY_MS;
     return { ok: true };
   }
 
