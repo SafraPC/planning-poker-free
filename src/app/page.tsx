@@ -7,7 +7,7 @@ const FEATURES = [
   {
     icon: Radio,
     title: "Tempo real edge",
-    body: "PartyKit em WebSocket de baixa latência. Uma única sala compartilhada.",
+    body: "PartyKit em WebSocket de baixa latência. Cada token abre uma mesa isolada.",
   },
   {
     icon: ShieldCheck,
@@ -54,8 +54,8 @@ export default function HomePage() {
             <span className="text-ink-muted">sem fricção.</span>
           </h1>
           <p className="max-w-2xl text-lg text-ink-muted">
-            Uma sala única para até 8 pessoas. Cartas em camiseta, café fora das
-            estatísticas, e uma experiência polida do convite ao reveal.
+            Cada convite traz um token na URL (até 8 pessoas). Cartas em
+            camiseta, café fora das estatísticas, do convite ao reveal.
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <Link
@@ -68,8 +68,9 @@ export default function HomePage() {
             <Link
               href="/sala"
               className="inline-flex h-12 items-center gap-2 rounded-lg border border-border bg-surface-elevated px-6 text-sm font-medium tracking-tight text-ink transition-colors hover:border-border-strong hover:bg-surface-muted"
+              title="Use o link com token que o anfitrião enviou; sem token, abrimos sessão recente se ainda válida"
             >
-              Entrar como convidado
+              Já tenho o link
             </Link>
           </div>
         </section>

@@ -26,6 +26,7 @@ interface Props {
   lastError: string | null;
   onDismissError: () => void;
   intentHost: boolean;
+  inviteUrl: string;
 }
 
 interface PhaseStageProps {
@@ -35,6 +36,7 @@ interface PhaseStageProps {
   setTaskDraft: ReturnType<typeof useTaskDraft>[1];
   votedCount: number;
   votingTotal: number;
+  inviteUrl: string;
 }
 
 function PhaseStage({
@@ -44,6 +46,7 @@ function PhaseStage({
   setTaskDraft,
   votedCount,
   votingTotal,
+  inviteUrl,
 }: PhaseStageProps) {
   const { phase, isHost, members, selfId } = snapshot;
   const self = members.find((m) => m.id === selfId);
@@ -53,6 +56,7 @@ function PhaseStage({
       <LobbyPanel
         isHost={isHost}
         memberCount={members.length}
+        inviteUrl={inviteUrl}
         onEnterDraft={() => send({ type: "HOST_ENTER_DRAFT" })}
       />
     );
@@ -104,6 +108,7 @@ export function RoomView({
   lastError,
   onDismissError,
   intentHost,
+  inviteUrl,
 }: Props) {
   const [taskDraft, setTaskDraft] = useTaskDraft({
     remoteTask: snapshot.task,
@@ -188,6 +193,7 @@ export function RoomView({
             setTaskDraft={setTaskDraft}
             votedCount={votedCount}
             votingTotal={snapshot.members.length}
+            inviteUrl={inviteUrl}
           />
         </motion.div>
       </AnimatePresence>

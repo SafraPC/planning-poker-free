@@ -4,21 +4,26 @@ import { Check, Link2, Users } from "lucide-react";
 import { useState } from "react";
 import { MAX_PARTICIPANTS } from "@shared/types";
 import { Button } from "@/components/ui/button";
-import { COPY_FEEDBACK_MS, INVITE_PATH } from "@/lib/constants";
+import { COPY_FEEDBACK_MS } from "@/lib/constants";
 
 interface Props {
   isHost: boolean;
   memberCount: number;
+  inviteUrl: string;
   onEnterDraft: () => void;
 }
 
-export function LobbyPanel({ isHost, memberCount, onEnterDraft }: Props) {
+export function LobbyPanel({
+  isHost,
+  memberCount,
+  inviteUrl,
+  onEnterDraft,
+}: Props) {
   const [copied, setCopied] = useState(false);
 
   async function copyInvite() {
-    if (typeof window === "undefined") return;
-    const url = `${window.location.origin}${INVITE_PATH}`;
-    await navigator.clipboard.writeText(url);
+    if (typeof window === "undefined" || !inviteUrl) return;
+    await navigator.clipboard.writeText(inviteUrl);
     setCopied(true);
     window.setTimeout(() => setCopied(false), COPY_FEEDBACK_MS);
   }
@@ -38,21 +43,27 @@ export function LobbyPanel({ isHost, memberCount, onEnterDraft }: Props) {
         </p>
       </div>
       {isHost ? (
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={copyInvite}
-            aria-live="polite"
-          >
-            {copied ? (
-              <Check className="h-3.5 w-3.5" aria-hidden />
-            ) : (
-              <Link2 className="h-3.5 w-3.5" aria-hidden />
-            )}
-            {copied ? "Copiado" : "Copiar convite"}
-          </Button>
-          <Button onClick={onEnterDraft}>Ir para o rascunho</Button>
+        <div className="flex max-w-md flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center">
+          <p className="w-full break-all text-center text-[10px] text-ink-faint sm:text-left">
+            {inviteUrl}
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={copyInvite}
+              disabled={!inviteUrl}
+              aria-live="polite"
+            >
+              {copied ? (
+                <Check className="h-3.5 w-3.5" aria-hidden />
+              ) : (
+                <Link2 className="h-3.5 w-3.5" aria-hidden />
+              )}
+              {copied ? "Copiado" : "Copiar convite"}
+            </Button>
+            <Button onClick={onEnterDraft}>Ir para o rascunho</Button>
+          </div>
         </div>
       ) : (
         <p className="text-sm text-ink-muted">

@@ -7,9 +7,8 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldLabel, Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
-
-const LS_NAME = "pp_display_name";
-const LS_ROOM = "pp_room_name";
+import { generateRoomToken } from "@/lib/room-token";
+import { upsertRoomSession } from "@/lib/room-sessions";
 
 export default function AnfitriaoPage() {
   const router = useRouter();
@@ -21,11 +20,15 @@ export default function AnfitriaoPage() {
     const r = room.trim();
     const n = name.trim();
     if (!r || !n) return;
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(LS_ROOM, r);
-      sessionStorage.setItem(LS_NAME, n);
-    }
-    const q = new URLSearchParams({ host: "1", room: r, name: n });
+    const token = generateRoomToken();
+    upsertRoomSession({
+      token,
+      roomName: r,
+      displayName: n,
+      role: "host",
+      lastConnectedAt: Date.now(),
+    });
+    const q = new URLSearchParams({ host: "1", room: r, name: n, token });
     router.push(`/sala?${q.toString()}`);
   }
 
@@ -54,8 +57,9 @@ export default function AnfitriaoPage() {
             convide até 8 pessoas.
           </h1>
           <p className="max-w-md text-base text-ink-muted">
-            Defina o nome da sala e como você aparece. Em seguida, copie o link
-            e envie pelo Slack ou Teams.
+            Um token único abre a sala no PartyKit. O convite é{" "}
+            <span className="whitespace-nowrap">/sala?token=…</span> — envie o link
+            completo.
           </p>
         </div>
 

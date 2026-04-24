@@ -4,38 +4,43 @@ import PartySocket from "partysocket";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RoomSnapshot } from "@shared/types";
 import type { ClientMessage } from "@shared/wire";
-import { getPartyKitHost, getPartyName, getRoomId, isStatePayload } from "@/lib/party";
+import {
+  getPartyKitHost,
+  getPartyName,
+  getRoomIdForToken,
+  isStatePayload,
+} from "@/lib/party";
+import { touchRoomSession } from "@/lib/room-sessions";
+import { getOrCreatePersistentUserId } from "@/lib/user-id";
 
-const STORAGE_KEY = "pp_conn_id";
-
-function readStableId() {
-  if (typeof window === "undefined") return "";
-  let id = sessionStorage.getItem(STORAGE_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    sessionStorage.setItem(STORAGE_KEY, id);
-  }
-  return id;
-}
-
-export function usePlanningSocket(enabled: boolean) {
+export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
   const [snapshot, setSnapshot] = useState<RoomSnapshot | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
   const sockRef = useRef<PartySocket | null>(null);
+  const tokenRef = useRef<string | null>(null);
 
-  const endpoint = useMemo(
-    () => ({
+  const endpoint = useMemo(() => {
+    const t = roomToken?.trim() ?? "";
+    if (!t) {
+      return { host: "", party: "", room: "" };
+    }
+    return {
       host: getPartyKitHost(),
       party: getPartyName(),
-      room: getRoomId(),
-    }),
-    [],
-  );
+      room: getRoomIdForToken(t),
+    };
+  }, [roomToken]);
 
   useEffect(() => {
-    if (!enabled) return;
-    const id = readStableId();
+    tokenRef.current = roomToken?.trim() ?? null;
+  }, [roomToken]);
+
+  useEffect(() => {
+    if (!enabled || !roomToken?.trim()) return;
+    const id = getOrCreatePersistentUserId();
+    if (!id) return;
+
     const socket = new PartySocket({
       host: endpoint.host,
       party: endpoint.party,
@@ -43,6 +48,7 @@ export function usePlanningSocket(enabled: boolean) {
       id,
     });
     sockRef.current = socket;
+
     const onOpen = () => {
       setConnected(true);
       setLastError(null);
@@ -57,6 +63,10 @@ export function usePlanningSocket(enabled: boolean) {
         };
         if (data.type === "STATE" && isStatePayload(data.payload)) {
           setSnapshot(data.payload);
+          const tok = tokenRef.current;
+          if (tok) {
+            touchRoomSession(tok);
+          }
         }
         if (data.type === "ERROR" && data.message) {
           setLastError(data.message);
@@ -75,7 +85,7 @@ export function usePlanningSocket(enabled: boolean) {
       socket.close();
       sockRef.current = null;
     };
-  }, [enabled, endpoint.host, endpoint.party, endpoint.room]);
+  }, [enabled, roomToken, endpoint.host, endpoint.party, endpoint.room]);
 
   const send = useCallback((msg: ClientMessage) => {
     const s = sockRef.current;

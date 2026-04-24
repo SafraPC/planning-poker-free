@@ -1,26 +1,27 @@
 # Planning Poker Free — contexto rápido
 
 ## Produto
-- Uma única sala em tempo real (máx. 8 pessoas). Deck: XS, S, M, L, XL, ?, COFFEE (café não entra nas estatísticas de acordo/soma).
-- Fases: `awaiting_host` → `lobby` → `draft` → `voting` → `revealing` (3s) → `revealed`. Sem persistência além da sessão PartyKit.
+- Salas por **token** no PartyKit: o `room` do WebSocket é o token (ver `src/lib/party.ts` `getRoomIdForToken`). Máx. 8 pessoas. Deck: XS, S, M, L, XL, ?, COFFEE (café não entra nas estatísticas de acordo/soma).
+- Convite: **`/sala?token=<token>`** (query `name=` opcional para reconexão). Anfitrião: `/anfitriao` gera token e redireciona com `host=1&room=&name=&token=`.
+- Cliente: **`pp_user_id`** no `localStorage` (`src/lib/user-id.ts`, formato `timestamp` + 8 chars alfanum). **`pp_room_sessions`**: lista de sessões com `token`, `roomName`, `displayName`, `role`, `lastConnectedAt`; reconexão automática em `/sala` sem query só se **< 10 min** (`ROOM_SESSION_TTL_MS` em `src/lib/room-sessions.ts`).
+- Fases: `awaiting_host` → `lobby` → `draft` → `voting` → `revealing` (3s) → `revealed`. Estado no PartyKit em memória (hibernate desligado).
 
 ## Stack
-- **Next.js 15** (`src/app`): UI, tema claro/escuro (`next-themes`), rota `/api/jira` opcional.
-- **PartyKit** (`party/index.ts`, `party/engine-state.ts`, `party/reduce-message.ts`, `party/snapshot.ts`): WebSocket/autoridade da sala; estado em memória (hibernate desligado).
-- **Cliente WS**: `partysocket` + `src/hooks/use-planning-socket.ts`. Host: query `/sala?host=1&room=&name=` após `/anfitriao`.
+- **Next.js 15** (`src/app`): UI, tema claro/escuro (`next-themes`).
+- **PartyKit** (`party/index.ts`, `party/engine-state.ts`, `party/reduce-message.ts`, `party/snapshot.ts`): WebSocket/autoridade; uma instância DO por **room id** (= token).
+- **Cliente WS**: `partysocket` + `src/hooks/use-planning-socket.ts` — `id` da conexão = `getOrCreatePersistentUserId()`; `room` = token.
 
 ## Variáveis
-- `NEXT_PUBLIC_PARTYKIT_HOST` — em prod, host do deploy PartyKit (sem protocolo, ex.: `projeto.usuario.partykit.dev`).
+- `NEXT_PUBLIC_PARTYKIT_HOST` — em prod, host do deploy PartyKit (sem protocolo).
 - `NEXT_PUBLIC_PARTYKIT_PARTY` — default `main` (alinhar com `partykit.json`).
-- `NEXT_PUBLIC_PARTYKIT_ROOM` — default `global-room` (ver `shared/types.ts` `ROOM_PARTY_ID`).
-- Jira: `JIRA_BASE_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN` para `/api/jira`.
+- Não usar `NEXT_PUBLIC_PARTYKIT_ROOM` fixo; o room id vem do token do convite.
 
 ## Lógica compartilhada
-- `@shared/types`, `@shared/vote-stats` (distribuição, acordo, unanimidade para confete), `@shared/wire` (mensagens Zod).
+- `@shared/types`, `@shared/vote-stats`, `@shared/wire` (mensagens Zod).
 
 ## Scripts
 - `npm run dev` — PartyKit (1999) + Next em paralelo.
-- `npm test` — Vitest em `shared/**/*.test.ts`.
+- `npm test` — Vitest: `shared/**/*.test.ts`, `party/**/*.test.ts`.
 
 ## Deploy
-- Vercel: app Next + projeto PartyKit deployado; configurar envs públicos apontando ao host PartyKit.
+- Vercel (Next) + PartyKit deployado; `NEXT_PUBLIC_PARTYKIT_*` apontando ao host público.

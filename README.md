@@ -1,6 +1,8 @@
 # Planning Poker Free
 
-Aplicação web em português para estimativas em **camiseta (tempo)** com **uma sala única**, **WebSockets** via [PartyKit](https://partykit.io/) e interface com **tema claro/escuro**, **flip 3D** nas cartas, **contagem dramática de 3 segundos** antes da revelação, **gráfico de votos**, **anel de sincronia** e **confetes** quando há unanimidade (entre votos que contam nas estatísticas — café fica de fora).
+Aplicação web em português para estimativas em **camiseta (tempo)** com **salas por token** (cada anfitrião gera um token; o Party room id é esse token), **WebSockets** via [PartyKit](https://partykit.io/) e interface com **tema claro/escuro**, **flip 3D** nas cartas, **contagem dramática de 3 segundos** antes da revelação, **gráfico de votos**, **anel de sincronia** e **confetes** quando há unanimidade (entre votos que contam nas estatísticas — café fica de fora).
+
+Cada aparelho guarda no **localStorage** um `pp_user_id` (timestamp + sufixo aleatório de 8 caracteres) usado como id estável do WebSocket, e a lista de **sessões recentes** com token, nome, papel (anfitrião/convidado) e `lastConnectedAt`. Reconexão automática ao abrir `/sala` sem query só acontece se a última atividade tiver **menos de 10 minutos**; convite: `/sala?token=<token>` (também `name=` para pular o formulário quando reconecta).
 
 ## Regras do deck
 
@@ -33,10 +35,10 @@ Isso sobe o PartyKit (porta **1999**) e o Next em paralelo. Abra o endereço que
 
 Fluxo:
 
-1. **Anfitrião**: `/anfitriao` → nome da sala + nome → `/sala?host=1&...`.
-2. **Convidados**: `/sala` → informam o nome → entram quando a sala já foi aberta.
+1. **Anfitrião**: `/anfitriao` → gera `token` → `/sala?host=1&room=…&name=…&token=…`.
+2. **Convidados**: abrem o link com `token` (ex. `/sala?token=…`) → informam o nome (ou vêm de sessão com `name=` se reconexão) → entram quando a sala já foi aberta.
 
-Copie o link da sala (`/sala`) a partir do painel do anfitrião no **lobby**.
+Copie a URL completa a partir do **lobby** (inclui o query `token`).
 
 ## Testes
 
@@ -49,7 +51,7 @@ Cobertura focada nos pontos de risco: estatísticas e exclusão do café (`share
 ## Deploy
 
 1. **PartyKit**: `npx partykit deploy` no repositório; anote o host público (ex.: `*.partykit.dev`).
-2. **Vercel**: importe o projeto Next; defina `NEXT_PUBLIC_PARTYKIT_HOST`, `NEXT_PUBLIC_PARTYKIT_PARTY` (padrão `main`) e `NEXT_PUBLIC_PARTYKIT_ROOM` (padrão `global-room`, alinhado a `ROOM_PARTY_ID` em `shared/types.ts`).
+2. **Vercel**: importe o projeto Next; defina `NEXT_PUBLIC_PARTYKIT_HOST` e `NEXT_PUBLIC_PARTYKIT_PARTY` (padrão `main`). Cada convite usa o **token** no path da room do PartyKit (não é necessário `NEXT_PUBLIC_PARTYKIT_ROOM` fixo).
 
 Veja `.env.example` para a lista completa.
 
@@ -65,6 +67,7 @@ Veja `.env.example` para a lista completa.
 | `src/components/room/*.tsx` | Painéis por fase (lobby, draft, voting, revealed, header, banners) |
 | `src/hooks/use-task-draft.ts` | Estado local do rascunho da tarefa com sincronia debounced |
 | `src/lib/constants.ts` | Constantes de tempo (debounce, feedback de cópia) |
+| `src/lib/user-id.ts` / `room-sessions.ts` / `room-token.ts` / `invite-url.ts` | Id de cliente, sessões 10 min, geração de token, URL de convite |
 
 ## Licença
 

@@ -1,5 +1,4 @@
 import type { RoomSnapshot } from "@shared/types";
-import { ROOM_PARTY_ID } from "@shared/types";
 
 export function getPartyKitHost() {
   return (
@@ -12,8 +11,12 @@ export function getPartyName() {
   return process.env.NEXT_PUBLIC_PARTYKIT_PARTY ?? "main";
 }
 
-export function getRoomId() {
-  return process.env.NEXT_PUBLIC_PARTYKIT_ROOM ?? ROOM_PARTY_ID;
+export function getRoomIdForToken(token: string): string {
+  const t = token.trim();
+  if (!t) {
+    throw new Error("Token de sala ausente.");
+  }
+  return t;
 }
 
 export function isStatePayload(value: unknown): value is RoomSnapshot {
