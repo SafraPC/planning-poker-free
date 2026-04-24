@@ -37,7 +37,7 @@ function SalaContent() {
       ? Boolean(hostName && hostRoom)
       : guestReady && Boolean(displayName));
 
-  const { snapshot, send, connected, lastError, setLastError } =
+  const { snapshot, send, connected, reconnecting, lastError, setLastError } =
     usePlanningSocket(socketEnabled, roomToken || null);
 
   const [inviteOrigin, setInviteOrigin] = useState("");
@@ -206,6 +206,7 @@ function SalaContent() {
       snapshot={snapshot}
       send={send}
       connected={connected}
+      reconnecting={reconnecting}
       lastError={lastError}
       onDismissError={() => setLastError(null)}
       intentHost={intentHost}

@@ -10,15 +10,23 @@ import {
   getRoomIdForToken,
   isStatePayload,
 } from "@/lib/party";
+import {
+  PING_INTERVAL_MS,
+  partySocketReconnectOptions,
+} from "@/lib/party-socket-options";
 import { touchRoomSession } from "@/lib/room-sessions";
 import { getOrCreatePersistentUserId } from "@/lib/user-id";
+
+const PING_PAYLOAD = JSON.stringify({ type: "PING" as const });
 
 export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
   const [snapshot, setSnapshot] = useState<RoomSnapshot | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
+  const [reconnecting, setReconnecting] = useState(false);
   const sockRef = useRef<PartySocket | null>(null);
   const tokenRef = useRef<string | null>(null);
+  const hadSuccessfulOpenRef = useRef(false);
 
   const endpoint = useMemo(() => {
     const t = roomToken?.trim() ?? "";
@@ -46,14 +54,22 @@ export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
       party: endpoint.party,
       room: endpoint.room,
       id,
+      ...partySocketReconnectOptions,
     });
     sockRef.current = socket;
 
     const onOpen = () => {
       setConnected(true);
+      setReconnecting(false);
       setLastError(null);
+      hadSuccessfulOpenRef.current = true;
     };
-    const onClose = () => setConnected(false);
+    const onClose = () => {
+      setConnected(false);
+      if (hadSuccessfulOpenRef.current) {
+        setReconnecting(true);
+      }
+    };
     const onMessage = (evt: MessageEvent) => {
       try {
         const data = JSON.parse(String(evt.data)) as {
@@ -75,13 +91,43 @@ export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
         setLastError("Falha ao interpretar mensagem.");
       }
     };
+
     socket.addEventListener("open", onOpen);
     socket.addEventListener("close", onClose);
     socket.addEventListener("message", onMessage);
+
+    const pingId = window.setInterval(() => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(PING_PAYLOAD);
+      }
+    }, PING_INTERVAL_MS);
+
+    const onNetOnline = () => {
+      if (socket.readyState !== WebSocket.OPEN) {
+        socket.reconnect();
+      }
+    };
+    const onVis = () => {
+      if (
+        document.visibilityState === "visible" &&
+        socket.readyState !== WebSocket.OPEN &&
+        hadSuccessfulOpenRef.current
+      ) {
+        socket.reconnect();
+      }
+    };
+    window.addEventListener("online", onNetOnline);
+    document.addEventListener("visibilitychange", onVis);
+
     return () => {
+      window.clearInterval(pingId);
+      window.removeEventListener("online", onNetOnline);
+      document.removeEventListener("visibilitychange", onVis);
       socket.removeEventListener("open", onOpen);
       socket.removeEventListener("close", onClose);
       socket.removeEventListener("message", onMessage);
+      hadSuccessfulOpenRef.current = false;
+      setReconnecting(false);
       socket.close();
       sockRef.current = null;
     };
@@ -94,5 +140,12 @@ export function usePlanningSocket(enabled: boolean, roomToken: string | null) {
     }
   }, []);
 
-  return { snapshot, send, connected, lastError, setLastError };
+  return {
+    snapshot,
+    send,
+    connected,
+    reconnecting,
+    lastError,
+    setLastError,
+  };
 }

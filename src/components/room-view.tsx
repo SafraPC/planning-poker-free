@@ -21,6 +21,7 @@ interface Props {
   snapshot: RoomSnapshot;
   send: (msg: ClientMessage) => void;
   connected: boolean;
+  reconnecting: boolean;
   lastError: string | null;
   onDismissError: () => void;
   intentHost: boolean;
@@ -101,6 +102,7 @@ export function RoomView({
   onDismissError,
   intentHost,
   inviteUrl,
+  reconnecting,
 }: Props) {
   const votes = useMemo(
     () =>
@@ -177,7 +179,11 @@ export function RoomView({
   return (
     <div className="relative isolate mx-auto flex min-h-dvh max-w-6xl flex-col gap-8 px-6 pb-16 pt-8">
       <UnanimityConfetti fire={celebrate} />
-      <RoomHeader roomName={snapshot.roomName} connected={connected} />
+      <RoomHeader
+        roomName={snapshot.roomName}
+        connected={connected}
+        reconnecting={reconnecting}
+      />
       <AnimatePresence>
         {lastError ? (
           <ErrorBanner message={lastError} onDismiss={onDismissError} />

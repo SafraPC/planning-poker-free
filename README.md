@@ -22,7 +22,7 @@ Cada aparelho guarda no **localStorage** um `pp_user_id` (timestamp + sufixo ale
 - **PartyKit**: servidor em tempo real **sem banco** — estado só em memória da party, alinhado ao requisito de "sem persistência durável".
 - **Front** mantém o estado após cada `STATE`; nova rodada zera votos e volta à fase de preparo (`draft`) antes de nova votação.
 
-Por que PartyKit e não só Vercel? Funções serverless da Vercel não mantêm WebSocket long-lived; PartyKit roda na edge com o modelo certo para salas colaborativas.
+Por que PartyKit e não só Vercel? O app Next na Vercel **não** termina o WebSocket: o **browser fala em tempo real com o host do PartyKit** (ex.: `*.partykit.dev`). Funções serverless da Vercel não mantêm conexão WS; a sala fica no PartyKit. Ajustes de **reconexão** (valores em `src/lib/party-socket-options.ts`), **PING** periódico, retomada em `online` e ao voltar a aba, e badge **Reconectando** cobrem quedas de rede ou throttling de aba — não têm a ver com “múltiplas máquinas” da Vercel no request HTTP.
 
 ## Desenvolvimento local
 
@@ -67,6 +67,7 @@ Veja `.env.example` para a lista completa.
 | `src/components/room/*.tsx` | Painéis por fase (lobby, draft, voting, revealed, header, banners) |
 | `src/lib/constants.ts` | Constantes (feedback de cópia, etc.) |
 | `src/lib/user-id.ts` / `room-sessions.ts` / `room-token.ts` / `invite-url.ts` | Id de cliente, sessões 10 min, geração de token, URL de convite |
+| `src/lib/party-socket-options.ts` | Atrasos/timeout de reconexão e intervalo de PING para o `PartySocket` |
 
 ## Licença
 

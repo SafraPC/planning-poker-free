@@ -8,9 +8,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 interface Props {
   roomName: string;
   connected: boolean;
+  reconnecting: boolean;
 }
 
-export function RoomHeader({ roomName, connected }: Props) {
+export function RoomHeader({ roomName, connected, reconnecting }: Props) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-4">
@@ -29,11 +30,19 @@ export function RoomHeader({ roomName, connected }: Props) {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Badge tone={connected ? "success" : "warning"} aria-live="polite">
+        <Badge
+          tone={connected ? "success" : reconnecting ? "warning" : "neutral"}
+          aria-live="polite"
+        >
           {connected ? (
             <>
               <span className="h-1.5 w-1.5 rounded-full bg-success" />
               Conectado
+            </>
+          ) : reconnecting ? (
+            <>
+              <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+              Reconectando
             </>
           ) : (
             <>

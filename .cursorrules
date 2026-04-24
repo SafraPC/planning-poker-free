@@ -9,7 +9,7 @@
 ## Stack
 - **Next.js 15** (`src/app`): UI, tema claro/escuro (`next-themes`).
 - **PartyKit** (`party/index.ts`, `party/engine-state.ts`, `party/reduce-message.ts`, `party/snapshot.ts`): WebSocket/autoridade; uma instância DO por **room id** (= token).
-- **Cliente WS**: `partysocket` + `src/hooks/use-planning-socket.ts` — `id` da conexão = `getOrCreatePersistentUserId()`; `room` = token.
+- **Cliente WS**: `partysocket` + `src/hooks/use-planning-socket.ts` — `id` = `getOrCreatePersistentUserId()`; `room` = token. WS vai ao **PartyKit**, não passa por serverless Vercel. Reconexão: opções em `src/lib/party-socket-options.ts`, PING, `online` + `visibilitychange`, UI `reconnecting`.
 
 ## Variáveis
 - `NEXT_PUBLIC_PARTYKIT_HOST` — em prod, host do deploy PartyKit (sem protocolo).
